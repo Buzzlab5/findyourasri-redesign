@@ -424,6 +424,28 @@ export const frames = {
     subject: "Beach from the air",
     sectors: ["brands"],
   },
+  // The Who We Work With tiles each sit on their own client's work (Anthony,
+  // 7 Oct 2026), so a logo never claims another client's shoot.
+  annebonnyIsland: {
+    id: "annebonnyIsland",
+    src: "/img/work/travel/anne-bonny/cover.jpg",
+    alt: "A green island rising from calm water at golden hour, a small sailing ship anchored below it",
+    w: 1920,
+    h: 2400,
+    subject: "Anne Bonny at anchor",
+    sectors: ["operators"],
+    pos: "50% 55%",
+  },
+  wonderfulIndonesia: {
+    id: "wonderfulIndonesia",
+    src: "/img/work/travel/wonderful-indonesia/cover.jpg",
+    alt: "A procession in white ceremonial dress walking up a jungle path",
+    w: 1920,
+    h: 2400,
+    subject: "A procession through the forest",
+    sectors: ["destinations"],
+    pos: "50% 75%",
+  },
   brandsRose: {
     id: "brandsRose",
     src: "/img/sector-brands-rose.jpg",
@@ -1014,7 +1036,8 @@ export const workCategories: WorkCategory[] = [
     tabs: [
       { slug: "travel", label: "Travel" },
       { slug: "hospitality", label: "Hospitality" },
-      { slug: "products", label: "Products" },
+      // Renamed from Products (Cam's notes, Anthony 7 Oct 2026); the URL stays /products/.
+      { slug: "products", label: "Global Brands" },
       { slug: "films", label: "Films" },
     ],
     ratio: "2 / 3",
@@ -1564,6 +1587,7 @@ export const sectors: Sector[] = [
     body: "Content, campaigns and channel management, wherever the property is.",
     proof: "We have run the floor: restaurants, clubs and hotels in Bali.",
     frame: "dPavilionPool",
+    logo: { src: "/img/work/hospitality/desa-hay-bali/logo.png", w: 74, h: 48 },
     pattern: "tide",
     services: [
       {
@@ -1610,7 +1634,8 @@ export const sectors: Sector[] = [
     body: "Content, direct-booking campaigns and creator expeditions, planned around your departures.",
     proof:
       "Every point of direct share you win is margin you keep, permanently.",
-    frame: "dPhinisiGold",
+    frame: "annebonnyIsland",
+    logo: { src: "/img/work/travel/anne-bonny/logo.png", w: 88, h: 30 },
     pattern: "wake",
     services: [
       {
@@ -1673,7 +1698,8 @@ export const sectors: Sector[] = [
     body: "Story-led destination films, regional campaigns and creator programmes built to open a region, not to expire with a quarter.",
     proof:
       "We are not pitching your region from a deck. We have filmed in the places you are trying to open.",
-    frame: "dLagoonChannel",
+    frame: "wonderfulIndonesia",
+    logo: { src: "/img/work/travel/wonderful-indonesia/logo.png", w: 88, h: 35 },
     pattern: "terraces",
     services: [
       { slug: "production" },
