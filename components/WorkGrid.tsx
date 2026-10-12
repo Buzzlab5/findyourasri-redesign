@@ -11,8 +11,8 @@ import type { WorkPiece } from '@/lib/content';
  * play in place, with sound, only when asked.
  */
 export default function WorkGrid({ items, ratio }: { items: WorkPiece[]; ratio: string }) {
-  const stills = items.filter((p) => !p.video);
-  const films = items.filter((p) => p.video);
+  const stills = items.filter((p) => !p.video && !p.youtube);
+  const films = items.filter((p) => p.video || p.youtube);
 
   return (
     <>
@@ -72,14 +72,38 @@ export default function WorkGrid({ items, ratio }: { items: WorkPiece[]; ratio: 
   );
 }
 
+/**
+ * When a video has no maxresdefault, YouTube answers with a 120px grey
+ * placeholder instead of an error, so check the size as well as onError.
+ * sddefault always exists.
+ */
+function swapGreyPoster(img: HTMLImageElement, youtube?: string, failed = false) {
+  if (!youtube || img.src.includes('sddefault')) return;
+  if (failed || (img.complete && img.naturalWidth > 0 && img.naturalWidth <= 120)) {
+    img.src = `https://i.ytimg.com/vi/${youtube}/sddefault.jpg`;
+  }
+}
+
 function Film({ piece }: { piece: WorkPiece }) {
   const [playing, setPlaying] = useState(false);
-  const video = piece.video!;
+  const video = piece.video;
+  const youtube = piece.youtube;
+  // maxresdefault is missing for some videos; sddefault always exists.
+  const poster = youtube ? `https://i.ytimg.com/vi/${youtube}/maxresdefault.jpg` : video!.poster;
 
   return (
     <figure className="film reveal">
       <div className="reel-frame">
-        {playing ? (
+        {playing && youtube ? (
+          // youtube-nocookie sets no cookies until the film is played.
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${youtube}?autoplay=1&rel=0&modestbranding=1`}
+            title={piece.title}
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : playing && video ? (
           // Phones take the 720p cut; the browser picks the first source
           // whose media query matches.
           <video poster={video.poster} controls autoPlay playsInline preload="none">
@@ -95,7 +119,18 @@ function Film({ piece }: { piece: WorkPiece }) {
             data-cta-location="work_film"
             onClick={() => setPlaying(true)}
           >
-            <img src={video.poster} alt="" width={1600} height={900} loading="lazy" />
+            <img
+              ref={(img) => {
+                if (img) swapGreyPoster(img, youtube);
+              }}
+              src={poster}
+              alt=""
+              width={1600}
+              height={900}
+              loading="lazy"
+              onLoad={(e) => swapGreyPoster(e.currentTarget, youtube)}
+              onError={(e) => swapGreyPoster(e.currentTarget, youtube, true)}
+            />
             <span className="reel-frame__button" aria-hidden="true">
               &#9654;
             </span>

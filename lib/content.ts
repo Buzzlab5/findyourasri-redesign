@@ -633,6 +633,8 @@ export type WorkPiece = {
    * 720p cut phones get; both are web encodes of the masters in _src/video.
    */
   video?: { src: string; srcSm?: string; poster: string };
+  /** A YouTube film: the video id. Plays in an embedded player, no file of ours. */
+  youtube?: string;
 };
 
 export const workCategories: WorkCategory[] = [
@@ -702,14 +704,14 @@ export const workPieces: WorkPiece[] = [
   // Production · Films: DUMMY titles until Cam names the films.
   {
     id: 'f1',
-    title: 'Nets at First Light',
-    meta: 'Brand film · 1 min 12',
+    title: 'Boogeyman',
+    meta: 'Film · 4 min 05',
     category: 'production',
     tab: 'films',
     video: {
-      src: media('film-marriott.mp4'),
-      srcSm: media('film-marriott-sm.mp4'),
-      poster: media('film-marriott-poster.jpg'),
+      src: media('film-boogeyman.mp4'),
+      srcSm: media('film-boogeyman-sm.mp4'),
+      poster: media('film-boogeyman-poster.jpg'),
     },
   },
   {
@@ -723,6 +725,55 @@ export const workPieces: WorkPiece[] = [
       srcSm: media('film-san-mazarno-sm.mp4'),
       poster: media('film-san-mazarno-poster.jpg'),
     },
+  },
+  {
+    id: 'f6',
+    title: 'Mangrove Night Send',
+    meta: 'Film · 3 min 19',
+    category: 'production',
+    tab: 'films',
+    video: {
+      src: media('film-mangrove-night-send.mp4'),
+      srcSm: media('film-mangrove-night-send-sm.mp4'),
+      poster: media('film-mangrove-night-send-poster.jpg'),
+    },
+  },
+  {
+    id: 'f7',
+    title: 'Mantas & Beyond',
+    meta: 'Film · 2 min 56',
+    category: 'production',
+    tab: 'films',
+    video: {
+      src: media('film-mantas-beyond.mp4'),
+      srcSm: media('film-mantas-beyond-sm.mp4'),
+      poster: media('film-mantas-beyond-poster.jpg'),
+    },
+  },
+  // YouTube films: embedded, so the title and channel come from YouTube.
+  {
+    id: 'f3',
+    title: 'The Power Within: Storm Chasing with Ty Schmitt',
+    meta: 'Beautiful Destinations',
+    category: 'production',
+    tab: 'films',
+    youtube: 'MuETQnBQ58E',
+  },
+  {
+    id: 'f4',
+    title: 'Angelita',
+    meta: 'ChelseaKauai',
+    category: 'production',
+    tab: 'films',
+    youtube: '_D4lkDWxwek',
+  },
+  {
+    id: 'f5',
+    title: 'Explore and Witness the Wonders of Indonesia',
+    meta: 'Wonderful Indonesia',
+    category: 'production',
+    tab: 'films',
+    youtube: 'bz5E6EGxDnw',
   },
   // Marketing: empty until the real campaigns land (Anthony, 28 Sep: no
   // placeholder content on the live site).

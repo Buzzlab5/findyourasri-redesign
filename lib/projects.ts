@@ -267,9 +267,9 @@ export const projects: Project[] = [
     tile: { src: '/img/work/hospitality/hidden-hills-villas/tile.jpg', w: 804, h: 1100 },
     logo: { src: '/img/work/hospitality/hidden-hills-villas/logo.png', w: 96, h: 35 },
     gallery: [
+      { type: 'video', title: 'Solo', src: media('hidden-hills-solo.mp4'), srcSm: media('hidden-hills-solo-sm.mp4'), poster: '/video/work/hidden-hills-solo.jpg', w: 1280, h: 640, alt: 'A solo traveller at Hidden Hills Villas: breakfast in bed' },
       { type: 'video', title: 'Couple', src: media('hidden-hills-couple.mp4'), srcSm: media('hidden-hills-couple-sm.mp4'), poster: '/video/work/hidden-hills-couple.jpg', w: 1280, h: 640, alt: 'A couple at Hidden Hills Villas: a floating breakfast in the pool' },
       { type: 'video', title: 'Family', src: media('hidden-hills-family.mp4'), srcSm: media('hidden-hills-family-sm.mp4'), poster: '/video/work/hidden-hills-family.jpg', w: 1280, h: 640, alt: 'A family at Hidden Hills Villas: the welcome at the gate' },
-      { type: 'video', title: 'Solo', src: media('hidden-hills-solo.mp4'), srcSm: media('hidden-hills-solo-sm.mp4'), poster: '/video/work/hidden-hills-solo.jpg', w: 1280, h: 640, alt: 'A solo traveller at Hidden Hills Villas: breakfast in bed' },
     ],
   },
   {
