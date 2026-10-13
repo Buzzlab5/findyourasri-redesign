@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import HeroMedia from "@/components/HeroMedia";
 import { motionIsOff } from "@/lib/gsap";
+import { Arrow } from '@/components/Arrow';
 
 const ROTATION = ["Story.", "Audience.", "Asri."] as const;
 
@@ -110,7 +111,7 @@ export default function Hero() {
               >
                 Start a conversation
                 <span className="pill__arrow" aria-hidden="true">
-                  &#8599;
+                  <Arrow />
                 </span>
               </Link>
               <Link

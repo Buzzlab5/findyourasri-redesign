@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import Contours, { type PatternName } from '@/components/Contours';
 import type { Frame } from '@/lib/content';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * The hero for sector, service and hidden pages: the H1, copy and the
@@ -42,7 +43,7 @@ export default function SplitHero({
             >
               {cta.label ?? 'Start a conversation'}
               <span className="pill__arrow" aria-hidden="true">
-                &#8599;
+                <Arrow />
               </span>
             </Link>
           )}

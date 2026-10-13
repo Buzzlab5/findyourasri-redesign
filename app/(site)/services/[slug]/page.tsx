@@ -19,6 +19,7 @@ import {
   type ServiceSlug,
 } from '@/lib/content';
 import { orgId, pageMetadata, servicePages, site } from '@/lib/site';
+import { Arrow } from '@/components/Arrow';
 
 type Props = { params: Promise<{ slug: ServiceSlug }> };
 
@@ -140,7 +141,7 @@ export default async function ServicePage({ params }: Props) {
             <Link href="/services/#partnerships" className="pill pill--outline magnetic">
               Compare partnerships
               <span className="pill__arrow" aria-hidden="true">
-                &#8599;
+                <Arrow />
               </span>
             </Link>
           </p>
@@ -154,7 +155,7 @@ export default async function ServicePage({ params }: Props) {
             {forWhom.map((s) => (
               <li key={s.slug} className="reveal">
                 <Link href={`/sectors/${s.slug}/`} className="chip">
-                  {s.name} &#8594;
+                  {s.name} <Arrow dir="right" />
                 </Link>
               </li>
             ))}

@@ -9,6 +9,7 @@ import SmoothLink from '@/components/SmoothLink';
 import SplitHero from '@/components/SplitHero';
 import { frames, getSector, hiddenPages, people, type FrameId } from '@/lib/content';
 import { site } from '@/lib/site';
+import { Arrow } from '@/components/Arrow';
 
 type Props = { params: Promise<{ hidden: string }> };
 
@@ -88,7 +89,7 @@ export default async function HiddenPage({ params }: Props) {
             >
               Start a conversation
               <span className="pill__arrow" aria-hidden="true">
-                &#8599;
+                <Arrow />
               </span>
             </SmoothLink>
           ),

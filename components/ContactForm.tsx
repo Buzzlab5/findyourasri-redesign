@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { leadSectors, sectors, type LeadSector } from '@/lib/content';
 import { site } from '@/lib/site';
 import { readUtm, track, UTM_KEYS } from '@/lib/track';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * The one Netlify form, named "contact", with identical fields everywhere so
@@ -189,7 +190,7 @@ export default function ContactForm({
           {status === 'sending' ? 'Sending…' : 'Send'}
           {status !== 'sending' && (
             <span className="pill__arrow" aria-hidden="true">
-              &#8599;
+              <Arrow />
             </span>
           )}
         </button>

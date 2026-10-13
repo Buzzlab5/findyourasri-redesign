@@ -10,6 +10,7 @@ import BrandReel from '@/components/BrandReel';
 import SectorTiles from '@/components/SectorTiles';
 import { featured, frames } from '@/lib/content';
 import { homeGraph, pageMetadata, pages } from '@/lib/site';
+import { Arrow } from '@/components/Arrow';
 
 const SHOW_CAMPAIGNS = false;
 
@@ -41,7 +42,7 @@ export default function Home() {
               <Link href="/work/" className="pill pill--outline magnetic">
                 See the work
                 <span className="pill__arrow" aria-hidden="true">
-                  &#8599;
+                  <Arrow />
                 </span>
               </Link>
             </p>

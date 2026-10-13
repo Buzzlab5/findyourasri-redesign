@@ -7,6 +7,7 @@ import Contours, { type PatternName } from '@/components/Contours';
 import Lightbox from '@/components/Lightbox';
 import { ScrollTrigger, gsap, initGsap, motionIsOff } from '@/lib/gsap';
 import type { ProjectImage, ProjectMedia } from '@/lib/projects';
+import { Arrow, Play } from '@/components/Arrow';
 
 type Still = Extract<ProjectMedia, { type: 'image' }>;
 
@@ -249,7 +250,7 @@ export default function ProjectGallery({
                       >
                         <img src={panel.media.poster} alt={panel.media.alt} loading="lazy" draggable={false} />
                         <span className="reel-frame__button" aria-hidden="true">
-                          &#9654;
+                          <Play />
                         </span>
                       </button>
                     )}
@@ -275,7 +276,7 @@ export default function ProjectGallery({
                       <span className="work-tile__meta">Next project</span>
                     </span>
                     <span className="hs__round" aria-hidden="true">
-                      &#8599;
+                      <Arrow />
                     </span>
                   </Link>
                 </div>

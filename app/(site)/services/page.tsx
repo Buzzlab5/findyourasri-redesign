@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import Process from "@/components/Process";
 import { campaign, frames, getService, liveServices, partnerships, price, type Frame } from "@/lib/content";
 import { orgId, pageMetadata, pages, site } from "@/lib/site";
+import { Arrow } from '@/components/Arrow';
 
 export const metadata: Metadata = pageMetadata(pages.services);
 
@@ -87,7 +88,7 @@ export default function ServicesPage() {
               >
                 Start a conversation
                 <span className="pill__arrow" aria-hidden="true">
-                  &#8599;
+                  <Arrow />
                 </span>
               </Link>
               <a href="#partnerships" className="pill pill--ghost magnetic">
@@ -158,7 +159,7 @@ export default function ServicesPage() {
                   >
                     Start a conversation
                     <span className="pill__arrow" aria-hidden="true">
-                      &#8599;
+                      <Arrow />
                     </span>
                   </Link>
                 </p>
@@ -189,7 +190,7 @@ export default function ServicesPage() {
                   <span className="svc-index__claim">{s.claim}</span>
                   <span className="svc-index__terms">{s.terms}</span>
                   <span className="svc-index__go" aria-hidden="true">
-                    &#8599;
+                    <Arrow />
                   </span>
                 </Link>
               </li>
@@ -223,7 +224,7 @@ export default function ServicesPage() {
             >
               Tell us what needs to move
               <span className="pill__arrow" aria-hidden="true">
-                &#8599;
+                <Arrow />
               </span>
             </Link>
           </div>

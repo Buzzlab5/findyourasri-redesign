@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { EASE, gsap, initGsap, motionIsOff } from '@/lib/gsap';
+import { Arrow } from '@/components/Arrow';
 
 export type LightboxItem = {
   readonly title: string;
@@ -229,7 +230,7 @@ export default function Lightbox({
             onClick={() => step(1)}
             aria-label="Next project"
           >
-            <span aria-hidden="true">&#8594;</span>
+            <span aria-hidden="true"><Arrow dir="right" /></span>
           </button>
         </div>
       </div>

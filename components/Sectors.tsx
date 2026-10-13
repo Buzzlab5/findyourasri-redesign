@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { frames, getSector, type FrameId } from '@/lib/content';
+import { Arrow } from '@/components/Arrow';
 
 /** The wireframe's order: destinations, hospitality, then brands and operators. */
 const order = ['destinations', 'hospitality', 'brands', 'operators'] as const;
@@ -32,7 +33,7 @@ export default function Sectors() {
                 <Link href={`/sectors/${s.slug}/`} className="pill pill--outline magnetic">
                   How we work with {s.name === 'Global brands' ? 'brands' : s.name.toLowerCase()}
                   <span className="pill__arrow" aria-hidden="true">
-                    &#8599;
+                    <Arrow />
                   </span>
                 </Link>
               </p>

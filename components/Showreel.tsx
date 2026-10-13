@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 
 import { showreel } from '@/lib/content';
+import { Play } from '@/components/Arrow';
 
 /**
  * The Work page's showreel: a 16:9 poster with a play button. Nothing loads
@@ -36,7 +37,7 @@ export default function Showreel() {
         >
           <img src={showreel.poster} alt="" width={1600} height={900} loading="lazy" />
           <span className="reel-frame__button" aria-hidden="true">
-            &#9654;
+            <Play />
           </span>
         </button>
       )}

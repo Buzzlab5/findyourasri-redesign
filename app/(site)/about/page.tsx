@@ -21,7 +21,7 @@ const showPeopleSection = false;
 
 export default function AboutPage() {
   const shown = showPeopleSection ? people.filter((p) => p.show) : [];
-  const hero = frames.dKarstSunset;
+  const hero = frames.aboutHero;
 
   return (
     <>

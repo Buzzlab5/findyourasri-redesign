@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import type { WorkPiece } from '@/lib/content';
+import { Play } from '@/components/Arrow';
 
 /**
  * A portfolio grid in the reference's format: tall tiles, the title and place
@@ -133,7 +134,7 @@ function Film({ piece }: { piece: WorkPiece }) {
               onError={(e) => swapGreyPoster(e.currentTarget, youtube, true)}
             />
             <span className="reel-frame__button" aria-hidden="true">
-              &#9654;
+              <Play />
             </span>
           </button>
         )}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { campaign, frames, getService, type CampaignPart, type Frame } from '@/lib/content';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * The services page's spine: one campaign in five parts, each a service,
@@ -46,7 +47,7 @@ export default function CampaignChapters() {
                   data-cta-location="services_campaign"
                 >
                   {service.name}
-                  <span aria-hidden="true"> &#8599;</span>
+                  <span aria-hidden="true"> <Arrow /></span>
                 </Link>
               </p>
             </div>

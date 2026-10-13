@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * Shared component D: one sentence and the pill on a rule, at the end of every
@@ -38,7 +39,7 @@ export default function CtaLine({
         >
           {label}
           <span className="pill__arrow" aria-hidden="true">
-            &#8599;
+            <Arrow />
           </span>
         </Link>
       </div>

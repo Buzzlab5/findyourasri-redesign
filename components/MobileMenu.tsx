@@ -9,6 +9,7 @@ import { navLinks } from '@/lib/content';
 import { followLink } from '@/components/NavGuard';
 import { isActivePath } from '@/lib/nav';
 import { mailto, phoneLink, site } from '@/lib/site';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * The phone navigation: a bar button that opens a full-height sheet.
@@ -222,7 +223,7 @@ export default function MobileMenu() {
                 >
                   Start a conversation
                   <span className="pill__arrow" aria-hidden="true">
-                    &#8599;
+                    <Arrow />
                   </span>
                 </button>
               </div>

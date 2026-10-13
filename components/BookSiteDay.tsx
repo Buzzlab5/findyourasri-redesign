@@ -1,5 +1,6 @@
 import SmoothLink from '@/components/SmoothLink';
 import { site } from '@/lib/site';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * The site-day button. With a scheduler link (A11) it opens the scheduler and
@@ -10,7 +11,7 @@ export default function BookSiteDay({ variant = 'ink' }: { variant?: 'ink' | 'li
     <>
       Book a site day
       <span className="pill__arrow" aria-hidden="true">
-        &#8599;
+        <Arrow />
       </span>
     </>
   );

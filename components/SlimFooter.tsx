@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { mailto, phoneLink, site } from '@/lib/site';
+import { Arrow } from '@/components/Arrow';
 
 /** Shared component B, slim variant, for hidden pages: one row of the mark, the contact lines, a link to the full site and the fine print. */
 export default function SlimFooter() {
@@ -18,7 +19,7 @@ export default function SlimFooter() {
           {site.base}
         </p>
         <Link href="/" className="footer__slim-link">
-          See the full site &#8594;
+          See the full site <Arrow dir="right" />
         </Link>
         <p className="footer__fine">&#169; 2026 Asri.</p>
       </div>

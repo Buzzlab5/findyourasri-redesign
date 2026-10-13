@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Arrow } from '@/components/Arrow';
 
 /**
  * The header's call to action: a dot with an arrow that opens into the full
@@ -25,7 +26,7 @@ export function HeaderCtaLabel() {
         <span>Start a conversation</span>
       </span>
       <span className="pill__arrow" aria-hidden="true">
-        &#8599;
+        <Arrow />
       </span>
     </>
   );

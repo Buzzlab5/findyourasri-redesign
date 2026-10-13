@@ -633,6 +633,16 @@ export const frames = {
     sectors: ["destinations", "operators"],
     pos: "50% 55%",
   },
+  aboutHero: {
+    id: "aboutHero",
+    src: "/img/about-hero.jpg",
+    alt: "Women preparing offerings at a shrine beneath a banyan tree, light breaking through the mist",
+    w: 2200,
+    h: 1375,
+    subject: "Offerings under the banyan",
+    sectors: ["destinations"],
+    pos: "50% 62%",
+  },
   dKarstBay: {
     id: "dKarstBay",
     src: "/img/drive/karst-bay.jpg",
@@ -734,6 +744,16 @@ export const frames = {
     subject: "From the rigging",
     sectors: ["operators", "brands"],
     pos: "58% 50%",
+  },
+  creatorsPortrait: {
+    id: "creatorsPortrait",
+    src: "/img/creator-campaigns.jpg",
+    alt: "A free diver in a mask reaching toward a volcano, half in the water, half out",
+    w: 1200,
+    h: 1500,
+    subject: "Half in, half out",
+    sectors: ["destinations", "brands"],
+    pos: "50% 55%",
   },
   dSunsetSip: {
     id: "dSunsetSip",
@@ -1447,7 +1467,7 @@ export const campaign: CampaignPart[] = [
     slug: "creator-campaigns",
     chapter: "The creators",
     visual: "portrait",
-    frames: ["dMastSwing"],
+    frames: ["creatorsPortrait"],
   },
   {
     slug: "paid-media",
