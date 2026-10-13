@@ -88,6 +88,7 @@ function Film({ piece }: { piece: WorkPiece }) {
   const [playing, setPlaying] = useState(false);
   const video = piece.video;
   const youtube = piece.youtube;
+  const about = piece.about;
   // maxresdefault is missing for some videos; sddefault always exists.
   const poster = youtube ? `https://i.ytimg.com/vi/${youtube}/maxresdefault.jpg` : video!.poster;
 
@@ -140,6 +141,21 @@ function Film({ piece }: { piece: WorkPiece }) {
       <figcaption className="film__caption">
         <span className="work-tile__title film__title">{piece.title}</span>
         {piece.meta ? <span className="film__meta">{piece.meta}</span> : null}
+        {about?.byline ? <span className="film__byline">{about.byline}</span> : null}
+        {about?.description?.map((text) => (
+          <p key={text} className="film__text">
+            {text}
+          </p>
+        ))}
+        {about?.credits?.length ? (
+          <dl className="film__credits">
+            {about.credits.map((c) => (
+              <div key={c.role}>
+                <dt>{c.role}</dt> <dd>{c.names}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
       </figcaption>
     </figure>
   );

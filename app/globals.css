@@ -2310,11 +2310,19 @@ a.chip.is-on:hover { color: #fff; }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(24px, 2.6vw, 40px) var(--gap);
 }
-.film { margin: 0; display: grid; gap: 12px; }
+.film { margin: 0; display: grid; gap: 12px; align-content: start; }
 .film .reel-frame { border-radius: var(--a-r); }
 .film__caption { display: grid; gap: 4px; }
 .film__title { color: var(--a-ink); }
 .film__meta { font: 400 13.5px/1.4 var(--font-sans); color: var(--a-ink-3); }
+.film__byline { font: italic 400 14px/1.4 var(--font-sans); color: var(--a-ink-3); }
+.film__text { margin-top: 8px; font: 400 15px/1.6 var(--font-sans); color: var(--a-ink-2); text-wrap: pretty; }
+.film__text + .film__text { margin-top: 0; }
+.film__credits { margin-top: 10px; display: grid; gap: 3px; font: 400 13.5px/1.5 var(--font-sans); }
+.film__credits dt, .film__credits dd { display: inline; }
+.film__credits dt { color: var(--a-ink-3); }
+.film__credits dt::after { content: ":"; }
+.film__credits dd { margin: 0; color: var(--a-ink); }
 
 @media (max-width: 860px) {
   .tiles--3 { grid-template-columns: minmax(0, 1fr); gap: 22px; }
@@ -2990,6 +2998,56 @@ a.chip.is-on:hover { color: #fff; }
   transform: translate(-50%, -50%);
 }
 
+/*
+ * The mosaic under the rail (see mosaicTiles in ProjectMosaic). Every block
+ * fills its rows edge to edge. Pictures are laid over their tile rather than
+ * sized by it, so a tile's height comes only from its aspect-ratio or the
+ * rows it spans, never from the picture inside.
+ */
+.mosaic { padding-bottom: 0; }
+.project-body > .mosaic { padding-top: clamp(56px, 7vw, 112px); }
+.mosaic__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  /* Dense, so the small tiles of a mirrored block start on the large tile's row. */
+  grid-auto-flow: dense;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+.mosaic__tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--a-r-sm);
+  overflow: hidden;
+  background: var(--a-tint);
+  aspect-ratio: 4 / 5;
+}
+/* Phones, two columns: a1, b1 and d run across both. */
+.mosaic__tile--a1,
+.mosaic__tile--d { grid-column: span 2; aspect-ratio: 3 / 2; }
+.mosaic__tile--b1 { grid-column: span 2; aspect-ratio: 1 / 1; }
+.mosaic__tile--c { aspect-ratio: 1 / 1; }
+button.mosaic__tile { cursor: zoom-in; }
+button.mosaic__tile:focus-visible { outline: 2px solid var(--a-ocean); outline-offset: 3px; }
+.mosaic__tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 900ms var(--ease);
+}
+button.mosaic__tile:hover img { transform: scale(1.03); }
+.mosaic__tile--empty { display: grid; place-items: center; }
+.mosaic__tile--empty span {
+  font: 400 13px/1 var(--font-mono);
+  letter-spacing: .04em;
+  color: var(--a-ink-3);
+}
+
 @media (min-width: 861px) {
   .hs__swipe { display: none; }
   /* The pinned stage already centres the rail with air above it. */
@@ -3004,6 +3062,25 @@ a.chip.is-on:hover { color: #fff; }
     justify-content: center;
   }
   .hs.is-pinned .hs__viewport { overflow: hidden; scroll-snap-type: none; }
+}
+
+@media (min-width: 861px) {
+  .mosaic__grid { grid-template-columns: repeat(12, 1fr); }
+  .mosaic__tile { border-radius: var(--a-r); }
+  /* a: one large (7 columns, two rows) beside two small (5 columns); flipped, the large one sits right. */
+  .mosaic__tile--a1 { grid-column: 1 / span 7; grid-row: span 2; aspect-ratio: auto; }
+  .mosaic__tile--a2,
+  .mosaic__tile--a3 { grid-column: 8 / span 5; aspect-ratio: 5 / 3; }
+  .mosaic__tile--flip.mosaic__tile--a1 { grid-column: 6 / span 7; }
+  .mosaic__tile--flip.mosaic__tile--a2,
+  .mosaic__tile--flip.mosaic__tile--a3 { grid-column: 1 / span 5; }
+  /* b: three tall. */
+  .mosaic__tile--b1,
+  .mosaic__tile--b2,
+  .mosaic__tile--b3 { grid-column: span 4; aspect-ratio: 4 / 5; }
+  /* c: two square; d: one wide. */
+  .mosaic__tile--c { grid-column: span 6; aspect-ratio: 1 / 1; }
+  .mosaic__tile--d { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
 }
 
 @media (max-width: 860px) {

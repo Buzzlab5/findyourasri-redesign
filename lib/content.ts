@@ -967,6 +967,12 @@ export type WorkPiece = {
   video?: { src: string; srcSm?: string; poster: string };
   /** A YouTube film: the video id. Plays in an embedded player, no file of ours. */
   youtube?: string;
+  /** A film's write-up, set under its title: the byline (italic), the description and the credits. */
+  about?: {
+    byline?: string;
+    description?: string[];
+    credits?: { role: string; names: string }[];
+  };
 };
 
 export const workCategories: WorkCategory[] = [
@@ -1039,9 +1045,19 @@ export const workPieces: WorkPiece[] = [
   {
     id: "f1",
     title: "Boogeyman",
-    meta: "Film · 4 min 05",
     category: "production",
     tab: "films",
+    about: {
+      byline: "Independent Film by Cam Vaughne",
+      description: [
+        "A short film that uncovers the truth behind the fabled term \u201CBeware of the Boogeyman\u201D, and begs the question \u201CWhat if the monster we were taught to fear was actually the hero of a story never told\u201D",
+      ],
+      credits: [
+        { role: "Written and Directed by", names: "Cam Vaughne" },
+        { role: "Filmed and Edited by", names: "Cam Vaughne and Will Giroux" },
+        { role: "Narrated by", names: "Mac Rundle" },
+      ],
+    },
     video: {
       src: media("film-boogeyman-hd.mp4"),
       srcSm: media("film-boogeyman-hd-sm.mp4"),
@@ -1051,9 +1067,20 @@ export const workPieces: WorkPiece[] = [
   {
     id: "f2",
     title: "San Marzano Dream Series: Ep.1",
-    meta: "Expedition film · 2 min 21",
     category: "production",
     tab: "films",
+    about: {
+      byline: "Client: San Marzano",
+      description: [
+        "An extraordinary journey through the wild beauty of Komodo National Park, where pristine oceans, remote islands, and unforgettable encounters set the stage for a dream brought to life. Blending exploration, connection, and celebration of San Marzano\u2019s newest limited edition Sessantanni 60, the first chapter of our Dream Series captures the magic of discovering the world together, and the moments that make the journey unforgettable.",
+        "The beginning of an episodic series dedicated to extraordinary places, shared experiences, and the art of dreaming bigger.",
+      ],
+      credits: [
+        { role: "Directed by", names: "Cam Vaughne" },
+        { role: "Filmed by", names: "Sage Stephens, Josiah Gordon and Cam Vaughne" },
+        { role: "Edited by", names: "Sage Stephens" },
+      ],
+    },
     video: {
       src: media("film-san-mazarno-hd.mp4"),
       srcSm: media("film-san-mazarno-hd-sm.mp4"),
@@ -1063,9 +1090,20 @@ export const workPieces: WorkPiece[] = [
   {
     id: "f6",
     title: "Mangrove Night Send",
-    meta: "Film · 3 min 19",
     category: "production",
     tab: "films",
+    about: {
+      byline: "Client: Calico Jack Adventures",
+      description: [
+        "This adventure packed short film follows legendary cave diver, Mikko Paasi and photographer, Cam Vaughne, as they embark on a daunting mission to dive through a famously crocodile infested mangrove in West Papua at night.",
+      ],
+      credits: [
+        { role: "Directed by", names: "Cam Vaughne" },
+        { role: "Filmed by", names: "Sage Stephens, Cam Vaughne, and Mikko Paasi" },
+        { role: "Edited by", names: "Sage Stephens" },
+        { role: "Featured", names: "Mikko Paasi, Cam Vaughne, and Adam Fornasiero" },
+      ],
+    },
     video: {
       src: media("film-mangrove-night-send-hd.mp4"),
       srcSm: media("film-mangrove-night-send-hd-sm.mp4"),
@@ -1096,9 +1134,21 @@ export const workPieces: WorkPiece[] = [
   {
     id: "f4",
     title: "Angelita",
-    meta: "Josiah Gordon",
     category: "production",
     tab: "films",
+    about: {
+      byline: "Independent Film by Josiah Gordon",
+      description: ["A love story that beckons you to dive deeper\u2026"],
+      credits: [
+        { role: "Filmed, Written and Directed by", names: "Josiah Gordon" },
+        { role: "Starring", names: "Chelsea Yamase and Sam Kolder" },
+        { role: "Original Score \u201CAngelita\u201D by", names: "Matthew Morgan" },
+        { role: "Editing by", names: "Emmett Sparling" },
+        { role: "Coloring by", names: "Jake Pierrelee" },
+        { role: "Stunts by", names: "Sasha Juliard" },
+        { role: "Safety Divers", names: "Angel Oviedo, Cami Torres, and Matthew Duvault" },
+      ],
+    },
     youtube: "_D4lkDWxwek",
   },
   {

@@ -3,6 +3,7 @@ import CtaLine from '@/components/CtaLine';
 import { categoryHref } from '@/components/WorkCategoryView';
 import JsonLd from '@/components/JsonLd';
 import ProjectGallery from '@/components/ProjectGallery';
+import ProjectMosaic from '@/components/ProjectMosaic';
 import { type PatternName } from '@/components/Contours';
 import { getWorkCategory, type WorkTabSlug } from '@/lib/content';
 import { projectHref, projects, projectsFor, type Project } from '@/lib/projects';
@@ -97,6 +98,7 @@ export default function ProjectView({ project }: { project: Project }) {
               : undefined
           }
         />
+        <ProjectMosaic title={project.title} items={project.more ?? []} />
       </div>
 
       <CtaLine location="project_page" />

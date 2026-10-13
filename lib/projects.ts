@@ -58,7 +58,15 @@ export type Project = {
   /** The client's mark, white, for the tile's top-left corner. w and h are CSS px (the file is 3x). */
   logo?: { src: string; w: number; h: number };
   gallery: ProjectMedia[];
+  /**
+   * More stills for the mosaic under the rail. Add as many as there are; the
+   * layout repeats every six. Leave it out and the mosaic shows empty slots.
+   */
+  more?: ProjectImage[];
 };
+
+/** Empty slots shown in the mosaic until a project has its own `more` stills. Set false to hide them. */
+export const MOSAIC_PLACEHOLDERS = 12;
 
 export const projects: Project[] = [
   {
@@ -83,6 +91,17 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/travel/anne-bonny/05.jpg', w: 1342, h: 1900, alt: 'A woman standing in shallow water, the ship blurred behind her' },
       { type: 'image', src: '/img/work/travel/anne-bonny/06.jpg', w: 1900, h: 1267, alt: 'Guests sitting together on the shaded deck daybed' },
     ],
+    more: [
+      { src: '/img/work/travel/anne-bonny/more-01.jpg', w: 1600, h: 1029, alt: 'A man snorkelling in deep blue water with reef sharks around him' },
+      { src: '/img/work/travel/anne-bonny/more-02.jpg', w: 1600, h: 899, alt: 'An aerial of a green island ringed by white sand and turquoise shallows' },
+      { src: '/img/work/travel/anne-bonny/more-03.jpg', w: 1280, h: 1600, alt: 'Two people mid-flip above the ship at sunset, cliffs on either side' },
+      { src: '/img/work/travel/anne-bonny/more-04.jpg', w: 1067, h: 1600, alt: 'A figure leaping off the bowsprit at dusk, the ship dark against a blue sky' },
+      { src: '/img/work/travel/anne-bonny/more-05.jpg', w: 1067, h: 1600, alt: 'A crew in white lying along the bowsprit under the sails, seen from above' },
+      { src: '/img/work/travel/anne-bonny/more-06.jpg', w: 1280, h: 1600, alt: 'A woman wading into calm water toward the ship, misty hills behind' },
+      { src: '/img/work/travel/anne-bonny/more-07.jpg', w: 1280, h: 1600, alt: 'Three women sitting on the beach looking out at the ship in a misty bay' },
+      { src: '/img/work/travel/anne-bonny/more-08.jpg', w: 1067, h: 1600, alt: 'Friends crowded on the bow of a sailing boat at sunset, arms raised' },
+      { src: '/img/work/travel/anne-bonny/more-09.jpg', w: 1179, h: 1600, alt: 'A person falling past a sail against a pale misty sky' },
+    ],
   },
   {
     slug: 'bhutan-peaceful-tours',
@@ -105,6 +124,13 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/travel/bhutan-peaceful-tours/04.jpg', w: 1520, h: 1900, alt: 'A man sitting against a stone wall, a cliffside monastery behind him' },
       { type: 'image', src: '/img/work/travel/bhutan-peaceful-tours/05.jpg', w: 1520, h: 1900, alt: 'A monk crossing a sunlit stone courtyard' },
       { type: 'image', src: '/img/work/travel/bhutan-peaceful-tours/06.jpg', w: 1520, h: 1900, alt: 'A man resting on a ledge below a monastery built into the cliff' },
+    ],
+    more: [
+      { src: '/img/work/travel/bhutan-peaceful-tours/more-01.jpg', w: 1600, h: 1000, alt: 'A monk in red robes walking along a covered wooden bridge' },
+      { src: '/img/work/travel/bhutan-peaceful-tours/more-02.jpg', w: 1280, h: 1600, alt: 'Two monks standing in a whitewashed courtyard below a carved wooden facade' },
+      { src: '/img/work/travel/bhutan-peaceful-tours/more-03.jpg', w: 1280, h: 1600, alt: 'A monk sitting on a whitewashed stone ring around a large tree in a courtyard' },
+      { src: '/img/work/travel/bhutan-peaceful-tours/more-04.jpg', w: 1280, h: 1600, alt: 'A traveller sitting on a ledge stroking a dog, the cliffside monastery behind him' },
+      { src: '/img/work/travel/bhutan-peaceful-tours/more-05.jpg', w: 1280, h: 1600, alt: 'A monk seated beneath a huge spreading tree in a monastery courtyard' },
     ],
   },
   {
@@ -130,6 +156,18 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/travel/nepal/06.jpg', w: 1900, h: 1267, alt: 'A smiling monk in maroon robes with pigeons and the stupa behind him' },
       { type: 'image', src: '/img/work/travel/nepal/07.jpg', w: 1520, h: 1900, alt: 'Pigeons taking off in the square beneath the stupa' },
     ],
+    more: [
+      { src: '/img/work/travel/nepal/more-01.jpg', w: 1600, h: 1000, alt: 'Children running through a flock of pigeons beside a temple' },
+      { src: '/img/work/travel/nepal/more-02.jpg', w: 1600, h: 1067, alt: 'A woman reading by candlelight, a mirror reflecting the stupa street outside' },
+      { src: '/img/work/travel/nepal/more-03.jpg', w: 1600, h: 1000, alt: 'Young monks in maroon robes standing in a street hung with prayer flags' },
+      { src: '/img/work/travel/nepal/more-04.jpg', w: 1280, h: 1600, alt: 'Three young monks seated in front of a gilded Buddha' },
+      { src: '/img/work/travel/nepal/more-05.jpg', w: 1280, h: 1600, alt: 'Two women sharing tea at an arched window with the stupa beyond' },
+      { src: '/img/work/travel/nepal/more-06.jpg', w: 1280, h: 1600, alt: 'Two monkeys on a whitewashed stupa below a flag of prayer flags' },
+      { src: '/img/work/travel/nepal/more-07.jpg', w: 1600, h: 1000, alt: 'A monk at prayer inside a candlelit temple hall' },
+      { src: '/img/work/travel/nepal/more-08.jpg', w: 1600, h: 1000, alt: 'A monk in orange robes on a terrace, mountains behind him' },
+      { src: '/img/work/travel/nepal/more-09.jpg', w: 1280, h: 1600, alt: 'A man in a green jacket holding a camera on a busy street' },
+      { src: '/img/work/travel/nepal/more-10.jpg', w: 1280, h: 1600, alt: 'A woman in traditional dress raising her arms before the stupa, butter lamps around her' },
+    ],
   },
   {
     slug: 'phinisi-armada',
@@ -151,6 +189,13 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/travel/phinisi-armada/04.jpg', w: 1520, h: 1900, alt: 'The beach shipyard from directly above, surf at the edge' },
       { type: 'image', src: '/img/work/travel/phinisi-armada/05.jpg', w: 1520, h: 1900, alt: 'The unfinished hull seen between tall palm trunks' },
       { type: 'image', src: '/img/work/travel/phinisi-armada/06.jpg', w: 1520, h: 1900, alt: 'The shipyard with its sheds and a hull in progress, from the air' },
+    ],
+    more: [
+      { src: '/img/work/travel/phinisi-armada/more-01.jpg', w: 1600, h: 1067, alt: 'A shipbuilder smoking in a shaft of light inside a dark boatyard hall' },
+      { src: '/img/work/travel/phinisi-armada/more-02.jpg', w: 1600, h: 1067, alt: 'A wooden hull under construction in an open-sided shed beside the sea' },
+      { src: '/img/work/travel/phinisi-armada/more-03.jpg', w: 1600, h: 1067, alt: 'Two builders on scaffolding against the planked hull of a phinisi' },
+      { src: '/img/work/travel/phinisi-armada/more-04.jpg', w: 1280, h: 1600, alt: 'A phinisi frame rising above palm trees beside a grey sea, seen from above' },
+      { src: '/img/work/travel/phinisi-armada/more-05.jpg', w: 1600, h: 1000, alt: 'A half-built phinisi on the beach, palms and surf either side' },
     ],
   },
   {
@@ -174,6 +219,15 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/travel/wonderful-indonesia/04.jpg', w: 1520, h: 1900, alt: 'A small child walking down a cobbled village lane lined with banners' },
       { type: 'image', src: '/img/work/travel/wonderful-indonesia/05.jpg', w: 1900, h: 1267, alt: 'Two girls in traditional dress, one carrying an offering on her head' },
       { type: 'image', src: '/img/work/travel/wonderful-indonesia/06.jpg', w: 1520, h: 1900, alt: 'A fisherman wading through still water between wooden stilts' },
+    ],
+    more: [
+      { src: '/img/work/travel/wonderful-indonesia/more-01.jpg', w: 1280, h: 1600, alt: 'A sulphur miner walking through thick steam with two loaded baskets' },
+      { src: '/img/work/travel/wonderful-indonesia/more-02.jpg', w: 1280, h: 1600, alt: 'A miner wading in a turquoise pool among white sulphur rocks' },
+      { src: '/img/work/travel/wonderful-indonesia/more-03.jpg', w: 1280, h: 1600, alt: 'A miner carrying baskets of yellow sulphur at a crater rim, a turquoise lake behind' },
+      { src: '/img/work/travel/wonderful-indonesia/more-04.jpg', w: 1280, h: 1600, alt: 'Workers sorting sulphur beside wheelbarrows at the edge of a crater lake' },
+      { src: '/img/work/travel/wonderful-indonesia/more-05.jpg', w: 1280, h: 1600, alt: 'A farmer standing in a rice paddy with an owl perched on his hat' },
+      { src: '/img/work/travel/wonderful-indonesia/more-06.jpg', w: 1280, h: 1600, alt: 'Villagers carrying offerings under a giant banyan tree, light streaming through the branches' },
+      { src: '/img/work/travel/wonderful-indonesia/more-07.jpg', w: 1280, h: 1600, alt: 'A red vintage car parked beneath a huge banyan as the sun breaks through' },
     ],
   },
   {
@@ -202,6 +256,20 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/hospitality/bingin-tree-tops/10.jpg', w: 1900, h: 1267, alt: 'The plunge pool and deck at dusk' },
       { type: 'image', src: '/img/work/hospitality/bingin-tree-tops/11.jpg', w: 1267, h: 1900, alt: 'The pool and deck seen through leaves' },
     ],
+    more: [
+      { src: '/img/work/hospitality/bingin-tree-tops/more-01.jpg', w: 1600, h: 1198, alt: 'Two white villas with steep tiled roofs under a blue sky' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-02.jpg', w: 1600, h: 1000, alt: 'A carved wooden door hung with a flower offering, Tree Top 2 on the wall beside it' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-03.jpg', w: 1600, h: 900, alt: 'A courtyard plunge pool with white walls and tropical planting' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-04.jpg', w: 1280, h: 1600, alt: 'An aerial of the villas\' grey tiled roofs with the sea beyond' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-05.jpg', w: 1434, h: 1600, alt: 'The white facade of a villa with timber windows and a thatched eave, seen from below' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-06.jpg', w: 1067, h: 1600, alt: 'A woman climbing a timber staircase beside a white wall, fields behind her' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-07.jpg', w: 1600, h: 1067, alt: 'A woman sitting on a balcony rail beside the kitchen' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-08.jpg', w: 1600, h: 1067, alt: 'A villa at night, a lit pool in front and loungers on the deck' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-09.jpg', w: 1280, h: 1600, alt: 'A view from the bed through open curtains to a woman on the balcony' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-10.jpg', w: 1280, h: 1600, alt: 'Two women on loungers on the pool deck beneath a tree' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-11.jpg', w: 1280, h: 1600, alt: 'Two women relaxing in the lounge, one reading, balcony doors open behind them' },
+      { src: '/img/work/hospitality/bingin-tree-tops/more-12.jpg', w: 1280, h: 1600, alt: 'A woman standing in a small plunge pool in a walled courtyard' },
+    ],
   },
   {
     slug: 'desa-hay-bali',
@@ -227,6 +295,16 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/hospitality/desa-hay-bali/07.jpg', w: 1520, h: 1900, alt: 'A thatched bale beside the pool among palms' },
       { type: 'image', src: '/img/work/hospitality/desa-hay-bali/08.jpg', w: 1520, h: 1900, alt: 'A view from the bed through open curtains to a woman stretching outside' },
       { type: 'image', src: '/img/work/hospitality/desa-hay-bali/09.jpg', w: 1520, h: 1900, alt: 'A woman in a striped shirt reflected in a round mirror among palms' },
+    ],
+    more: [
+      { src: '/img/work/hospitality/desa-hay-bali/more-01.jpg', w: 1600, h: 1067, alt: 'A woman pouring tea in an outdoor bath, framed by palm leaves' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-02.jpg', w: 1600, h: 1067, alt: 'A woman reading in a hanging rattan chair among tropical leaves' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-03.jpg', w: 1280, h: 1600, alt: 'A woman in a green dress sitting by a bath in a jungle garden with red flowers' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-04.jpg', w: 1280, h: 1600, alt: 'A woman among ferns in a dark bathroom that opens onto the garden' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-05.jpg', w: 1280, h: 1600, alt: 'A woman in a white dress leading by the hand through the garden, the pool and thatched roof behind' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-06.jpg', w: 1280, h: 1600, alt: 'A man at a terrace table and a woman in the pool with a cup, a hanging chair behind them' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-07.jpg', w: 1280, h: 1600, alt: 'A man reading in a hanging egg chair, seen through a glass door' },
+      { src: '/img/work/hospitality/desa-hay-bali/more-08.jpg', w: 1280, h: 1600, alt: 'A couple lying on a bed beside the open jungle doors, a screen on the wall' },
     ],
   },
   {
@@ -297,6 +375,18 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/hospitality/marriott-bonvoy/08.jpg', w: 1080, h: 720, alt: 'A couple riding in a round basket boat with a rower in a conical hat' },
       { type: 'image', src: '/img/work/hospitality/marriott-bonvoy/09.jpg', w: 1080, h: 720, alt: 'A couple choosing seafood at a night market stall' },
     ],
+    more: [
+      { src: '/img/work/hospitality/marriott-bonvoy/more-01.jpg', w: 1080, h: 720, alt: 'Two men sitting on a street under hung calligraphy at night, a lamp lighting the pages' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-02.jpg', w: 1080, h: 675, alt: 'A woman walking beside a canal of old yellow buildings, a woman in a conical hat seated in front' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-03.jpg', w: 1080, h: 720, alt: 'A couple at a table of tea and cakes in an ornate pink room, a server beside them' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-04.jpg', w: 900, h: 1350, alt: 'A woman sitting in a doorway hung with colourful lanterns' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-05.jpg', w: 1080, h: 1350, alt: 'A street lined with pink bougainvillea and green lanterns, a lone motorbike ahead' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-06.jpg', w: 1080, h: 1350, alt: 'A couple walking past rows of large clay jars' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-07.jpg', w: 1080, h: 720, alt: 'Three people in a round basket boat among water palms' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-08.jpg', w: 1080, h: 1350, alt: 'Brick temple ruins among green hills' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-09.jpg', w: 1080, h: 1350, alt: 'Two women laughing in a cyclo on a sunny street' },
+      { src: '/img/work/hospitality/marriott-bonvoy/more-10.jpg', w: 900, h: 1350, alt: 'A couple on a sofa in a pink room, seen through a round blur' },
+    ],
   },
   {
     slug: 'cocosolis',
@@ -342,6 +432,25 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/products/find-your-asri/06.jpg', w: 1900, h: 1188, alt: 'A tan strap with an embossed dragon design on a stone floor' },
       { type: 'image', src: '/img/work/products/find-your-asri/07.jpg', w: 1520, h: 1900, alt: 'A man in a sarong sitting on temple steps with a camera on a strap' },
     ],
+    more: [
+      { src: '/img/work/products/find-your-asri/more-01.jpg', w: 1600, h: 1067, alt: 'A craftsman working a metal strap plate at a cluttered bench' },
+      { src: '/img/work/products/find-your-asri/more-02.jpg', w: 1600, h: 1067, alt: 'A silversmith hand-working a metal piece, seen close' },
+      { src: '/img/work/products/find-your-asri/more-03.jpg', w: 1600, h: 1067, alt: 'Three men smiling in the metalwork workshop' },
+      { src: '/img/work/products/find-your-asri/more-04.jpg', w: 1280, h: 1600, alt: 'A man in a white shirt and sarong sitting at a temple, holding up a camera strap' },
+      { src: '/img/work/products/find-your-asri/more-05.jpg', w: 1280, h: 1600, alt: 'A hand holding a camera with a long lens on its strap, a green path behind' },
+      { src: '/img/work/products/find-your-asri/more-06.jpg', w: 1280, h: 1600, alt: 'A hand gripping a grey camera strap over a linen shirt' },
+      { src: '/img/work/products/find-your-asri/more-07.jpg', w: 1600, h: 1067, alt: 'A woman photographing a mountain across a dry field' },
+      { src: '/img/work/products/find-your-asri/more-08.jpg', w: 1600, h: 1000, alt: 'A woman in a patterned robe holding a camera, the sea behind her' },
+      { src: '/img/work/products/find-your-asri/more-09.jpg', w: 1600, h: 1067, alt: 'A film camera and tan strap on a table beside a ginger cat' },
+      { src: '/img/work/products/find-your-asri/more-10.jpg', w: 1280, h: 1600, alt: 'A man from behind with a camera strap across his back, in garden light' },
+      { src: '/img/work/products/find-your-asri/more-11.jpg', w: 1280, h: 1600, alt: 'A hand on a leather messenger bag clipped to a motorbike' },
+      { src: '/img/work/products/find-your-asri/more-12.jpg', w: 1280, h: 1600, alt: 'A woman looking down at her camera above the sea' },
+      { src: '/img/work/products/find-your-asri/more-13.jpg', w: 1600, h: 1000, alt: 'A man photographing a volcano over rice fields' },
+      { src: '/img/work/products/find-your-asri/more-14.jpg', w: 1280, h: 1600, alt: 'A smiling woman holding a camera on a mint strap, the sea behind her' },
+      { src: '/img/work/products/find-your-asri/more-15.jpg', w: 1280, h: 1600, alt: 'A film camera and pink leather strap on a wooden shelf' },
+      { src: '/img/work/products/find-your-asri/more-16.jpg', w: 1067, h: 1600, alt: 'A man in a traditional headcloth holding a medium-format camera' },
+      { src: '/img/work/products/find-your-asri/more-17.jpg', w: 800, h: 1000, alt: 'A man in white sitting cross-legged at a carved temple gate, a camera strap across his chest' },
+    ],
   },
   {
     slug: 'flanagan-surfboards',
@@ -385,6 +494,13 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/products/next-stop/04.jpg', w: 1900, h: 1267, alt: 'A woman drinking from the bottle, wet hair and eyes closed' },
       { type: 'image', src: '/img/work/products/next-stop/05.jpg', w: 1520, h: 1900, alt: 'The bottle standing in a stream among green leaves' },
     ],
+    more: [
+      { src: '/img/work/products/next-stop/more-01.jpg', w: 1280, h: 1600, alt: 'A woman crouching on a rock in front of a huge waterfall, looking up' },
+      { src: '/img/work/products/next-stop/more-02.jpg', w: 1280, h: 1600, alt: 'A woman in a green sweatshirt sitting cross-legged on a rock, face hidden in her collar, the falls behind her' },
+      { src: '/img/work/products/next-stop/more-03.jpg', w: 1280, h: 1600, alt: 'A woman walking toward a tall waterfall over wet rocks, seen from behind' },
+      { src: '/img/work/products/next-stop/more-04.jpg', w: 1280, h: 1600, alt: 'A woman in a cap and green sweatshirt, hands on her head, among rocks below a waterfall' },
+      { src: '/img/work/products/next-stop/more-05.jpg', w: 1280, h: 1600, alt: 'A hand holding a black NxTSTOP pouch beside a bare foot on mossy rock' },
+    ],
   },
   {
     slug: 'san-marzano-wine',
@@ -409,6 +525,19 @@ export const projects: Project[] = [
       { type: 'image', src: '/img/work/products/san-marzano-wine/06.jpg', w: 1900, h: 1267, alt: 'Guests holding up lit bottles in magenta light' },
       { type: 'image', src: '/img/work/products/san-marzano-wine/07.jpg', w: 1900, h: 1267, alt: 'Two lit bottles in close-up' },
       { type: 'image', src: '/img/work/products/san-marzano-wine/08.jpg', w: 1900, h: 1267, alt: 'Wine being poured into a glass against the sunset' },
+    ],
+    more: [
+      { src: '/img/work/products/san-marzano-wine/more-01.jpg', w: 1600, h: 899, alt: 'A beach dinner and DJ set at dusk, ships anchored offshore' },
+      { src: '/img/work/products/san-marzano-wine/more-02.jpg', w: 1600, h: 899, alt: 'An aerial of phinisi anchored in a bay at sunset' },
+      { src: '/img/work/products/san-marzano-wine/more-03.jpg', w: 1600, h: 1067, alt: 'A rosé bottle standing in a splash of surf' },
+      { src: '/img/work/products/san-marzano-wine/more-04.jpg', w: 1107, h: 1600, alt: 'The sun setting over the sea, ships in silhouette on the golden reflection' },
+      { src: '/img/work/products/san-marzano-wine/more-05.jpg', w: 1067, h: 1600, alt: 'A bottle upright in the shallows, water breaking around it' },
+      { src: '/img/work/products/san-marzano-wine/more-06.jpg', w: 1067, h: 1600, alt: 'A man holding a bottle up on a pink-sand beach' },
+      { src: '/img/work/products/san-marzano-wine/more-07.jpg', w: 1600, h: 1067, alt: 'Guests at a long table under an awning on deck' },
+      { src: '/img/work/products/san-marzano-wine/more-08.jpg', w: 1600, h: 1067, alt: 'Two people holding glasses at the ship\'s rail at dusk' },
+      { src: '/img/work/products/san-marzano-wine/more-09.jpg', w: 1600, h: 1067, alt: 'A man leaning in to a glowing bottle in magenta light' },
+      { src: '/img/work/products/san-marzano-wine/more-10.jpg', w: 1067, h: 1600, alt: 'A man on the beach holding a bottle and a snorkel' },
+      { src: '/img/work/products/san-marzano-wine/more-11.jpg', w: 1600, h: 1067, alt: 'Lit bottles held up in purple and pink light' },
     ],
   },
 ];
