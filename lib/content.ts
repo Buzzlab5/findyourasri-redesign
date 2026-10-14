@@ -636,12 +636,12 @@ export const frames = {
   aboutHero: {
     id: "aboutHero",
     src: "/img/about-hero.jpg",
-    alt: "Women preparing offerings at a shrine beneath a banyan tree, light breaking through the mist",
-    w: 2200,
-    h: 1375,
-    subject: "Offerings under the banyan",
+    alt: "A man in a traditional udeng headcloth bows his head with his palms pressed together in prayer, an offering resting on his hands",
+    w: 2400,
+    h: 1350,
+    subject: "Prayer",
     sectors: ["destinations"],
-    pos: "50% 62%",
+    pos: "65% 40%",
   },
   dKarstBay: {
     id: "dKarstBay",
