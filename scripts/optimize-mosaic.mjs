@@ -7,6 +7,7 @@
  * portrait for 4 to 6, repeating. Prints the entries for lib/projects.ts.
  *
  *   node scripts/optimize-mosaic.mjs [outDir]
+ *   ONLY=Calico-Jack-New node scripts/optimize-mosaic.mjs   (just that folder)
  */
 import { mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import sharp from 'sharp';
@@ -20,6 +21,7 @@ const FOLDERS = {
   'Bhutan-Peaceful-Tours-New': 'travel/bhutan-peaceful-tours',
   'Nepal-New': 'travel/nepal',
   'Phinisi-Armada-New': 'travel/phinisi-armada',
+  'Calico-Jack-New': 'travel/calico-jack-charters',
   'Wonderful-Indonesia-New': 'travel/wonderful-indonesia',
   'Bingin-Tree-Tops-New': 'hospitality/bingin-tree-tops',
   'Desa-Hay-Bali-New': 'hospitality/desa-hay-bali',
@@ -33,6 +35,7 @@ const WANT = ['land', 'land', 'land', 'port', 'port', 'port'];
 
 const results = {};
 for (const [folder, dest] of Object.entries(FOLDERS)) {
+  if (process.env.ONLY && process.env.ONLY !== folder) continue;
   const files = readdirSync(`${SRC}/${folder}`)
     .filter((f) => /\.jpe?g$/i.test(f))
     .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));

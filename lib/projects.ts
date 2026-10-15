@@ -9,7 +9,9 @@ import { media } from '@/lib/media';
  * (cover 2400px, gallery 1900px, EXIF removed) under public/img/work. The
  * Hidden Hills and Cocosolis films are 1920px (1280px for phones) on the Bunny
  * CDN through `media()`, at the root of the storage zone. Posters stay local
- * in public/video/work.
+ * in public/video/work. The two Calico Jack Charters films are 9:16 (1080x1920,
+ * 720x1280 for phones), made by scripts/optimize-calico-jack.mjs into
+ * _src/video/bunny/calico-jack-charters.
  * Location and `lead` come from the campaign descriptions the client team
  * supplied; the gallery stories and alt text are drafts written from the
  * photographs: edit freely, and keep out em dashes (scripts/check-build.mjs fails the build).
@@ -65,8 +67,8 @@ export type Project = {
   more?: ProjectImage[];
 };
 
-/** Empty slots shown in the mosaic until a project has its own `more` stills. Set false to hide them. */
-export const MOSAIC_PLACEHOLDERS = 12;
+/** Empty slots shown in the mosaic until a project has its own `more` stills. 0 hides the section; set 12 to review the layout. */
+export const MOSAIC_PLACEHOLDERS = 0;
 
 export const projects: Project[] = [
   {
@@ -101,6 +103,42 @@ export const projects: Project[] = [
       { src: '/img/work/travel/anne-bonny/more-07.jpg', w: 1280, h: 1600, alt: 'Three women sitting on the beach looking out at the ship in a misty bay' },
       { src: '/img/work/travel/anne-bonny/more-08.jpg', w: 1067, h: 1600, alt: 'Friends crowded on the bow of a sailing boat at sunset, arms raised' },
       { src: '/img/work/travel/anne-bonny/more-09.jpg', w: 1179, h: 1600, alt: 'A person falling past a sail against a pale misty sky' },
+      { src: '/img/work/travel/anne-bonny/more-10.jpg', w: 1600, h: 1000, alt: 'An aerial of the ship below a green volcanic island at first light' },
+      { src: '/img/work/travel/anne-bonny/more-11.jpg', w: 1280, h: 1600, alt: 'The ship anchored in a channel between dark limestone cliffs at sunset, seen from above', pos: '50% 62%' },
+      { src: '/img/work/travel/anne-bonny/more-12.jpg', w: 1280, h: 1600, alt: 'An aerial of the ship under white sails on deep blue water, forested islands behind', pos: '50% 65%' },
+      { src: '/img/work/travel/anne-bonny/more-13.jpg', w: 1280, h: 1600, alt: 'A woman in white standing on the bowsprit at sunset, the sails glowing beside her', pos: '50% 40%' },
+    ],
+  },
+  {
+    slug: 'calico-jack-charters',
+    tab: 'travel',
+    title: 'Calico Jack Charters',
+    location: 'Raja Ampat, West Papua, Indonesia',
+    meta: 'Raja Ampat',
+    lead: 'Five years of photography, film and creator campaigns, from the deck of a red-sailed phinisi.',
+    story: [
+      'An ongoing client relationship spanning across 5 years of partnership, including photography and film production, YouTube and Instagram management, as well as influencer marketing campaigns.',
+      'Creators we have worked with on Calico Jack Charters include @emmettsparling, @lostleblanc, @chelseakauai, @josiahwg, @samnewton and @mikkopaasi, among others.',
+    ],
+    cover: { src: '/img/work/travel/calico-jack-charters/cover.jpg', w: 2400, h: 1350, alt: 'Looking up the mast to the crow\'s nest, red sails either side against a grey sky', pos: '50% 50%' },
+    tile: { src: '/img/work/travel/calico-jack-charters/tile.jpg', w: 880, h: 1100 },
+    logo: { src: '/img/work/travel/calico-jack-charters/logo.png', w: 88, h: 43 },
+    gallery: [
+      { type: 'image', src: '/img/work/travel/calico-jack-charters/01.jpg', w: 1900, h: 1069, alt: 'Children leaning on the side of a wooden canoe, seen half above and half below the water' },
+      { type: 'image', src: '/img/work/travel/calico-jack-charters/02.jpg', w: 1900, h: 1069, alt: 'An aerial of the red-sailed ship crossing a still bay beneath forested hills' },
+      { type: 'video', title: 'Under sail', src: media('calico-jack-sailing.mp4'), srcSm: media('calico-jack-sailing-sm.mp4'), poster: '/video/work/calico-jack-sailing.jpg', w: 1080, h: 1920, alt: 'The ship under red sails on calm water, mountains behind' },
+      { type: 'image', src: '/img/work/travel/calico-jack-charters/03.jpg', w: 1520, h: 1900, alt: 'An aerial of a steep green island ringed by pale shallows and deep blue sea' },
+      { type: 'video', title: 'Manta', src: media('calico-jack-manta.mp4'), srcSm: media('calico-jack-manta-sm.mp4'), poster: '/video/work/calico-jack-manta.jpg', w: 1080, h: 1920, alt: 'A freediver swimming above a reef with a manta ray gliding behind her' },
+    ],
+    more: [
+      { src: '/img/work/travel/calico-jack-charters/more-01.jpg', w: 1600, h: 1067, alt: 'A manta ray gliding over a rocky reef in blue water' },
+      { src: '/img/work/travel/calico-jack-charters/more-02.jpg', w: 1067, h: 1600, alt: 'Two women in woven skirts wading up a shallow river toward misty forested hills' },
+      { src: '/img/work/travel/calico-jack-charters/more-03.jpg', w: 1067, h: 1600, alt: 'Men with white-patterned body paint and fern skirts walking away along a forest path' },
+      { src: '/img/work/travel/calico-jack-charters/more-04.jpg', w: 1280, h: 1600, alt: 'A man in white body paint and a fern skirt crouching forward, others painted the same behind him' },
+      { src: '/img/work/travel/calico-jack-charters/more-05.jpg', w: 1280, h: 1600, alt: 'A woman in silhouette with her head tipped back in still water at sunset, rocks behind her' },
+      { src: '/img/work/travel/calico-jack-charters/more-06.jpg', w: 1209, h: 1600, alt: 'A dense school of blue and yellow fish filling the frame' },
+      { src: '/img/work/travel/calico-jack-charters/more-07.jpg', w: 1067, h: 1600, alt: 'A coral reef wall with anemones, a haze of small fish above it' },
+      { src: '/img/work/travel/calico-jack-charters/more-08.jpg', w: 1280, h: 1600, alt: 'A diver with a torch beside a reef wall, soft coral glowing orange in the beam' },
     ],
   },
   {

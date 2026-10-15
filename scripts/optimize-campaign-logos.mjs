@@ -36,6 +36,7 @@ const LOGOS = [
   { file: 'ecosix-fix.png', to: 'hospitality/eco-six', mode: 'shape' },
   { file: 'hidden-hills-vila-logo.png', to: 'hospitality/hidden-hills-villas', mode: 'shape', box: { w: 96, h: 44 } },
   { file: 'anne-bonny-logo.svg', to: 'travel/anne-bonny', mode: 'shape' },
+  { from: '_src/img/Calico Jack Charters/calico-jack-charters-logo.avif', to: 'travel/calico-jack-charters', mode: 'shape' },
   { file: 'bhutan-peaceful-logo.webp', to: 'travel/bhutan-peaceful-tours', mode: 'tone' },
   { file: 'nepal-logo.png', to: 'travel/nepal', mode: 'knock' },
   { file: 'marriot-bonvoy-logo.png', to: 'hospitality/marriott-bonvoy', mode: 'shape' },
