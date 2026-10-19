@@ -18,6 +18,7 @@ const indexedRoutes = [
     ...(c.tabs ?? []).slice(1).map((t) => `/work/${c.slug}/${t.slug}/`),
   ]),
   ...projects.map(projectHref),
+  '/expeditions/',
   '/sectors/',
   ...sectors.map((s) => `/sectors/${s.slug}/`),
   '/services/',

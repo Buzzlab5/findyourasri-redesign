@@ -1,0 +1,132 @@
+/* ============================================================
+   Expeditions (15 Oct 2026)
+   The page borrows the services page's cover and chapter rows; what is
+   new is here: the client mark, the trio of frames, and the route, laid
+   out day by day as the decks' journey page is. Kept out of brand.css so
+   the page travels as one folder.
+   ============================================================ */
+
+/* The cover's two sentences, one to a line. */
+.exp-cover__line { display: block; }
+
+/* The client's mark, a white PNG drawn in the section's ink. */
+.exp-logo {
+  display: block;
+  max-width: 100%;
+  background: var(--a-ink);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+  margin-bottom: 6px;
+}
+
+/* The deck's own line, under the title. */
+.exp-line {
+  font: italic 400 clamp(19px, 1.7vw, 25px)/1.25 var(--font-display);
+  color: var(--gold-2);
+}
+
+/* On the light page the numerals take the solid gold: the gradient's pale
+   top is lost on cream. */
+.tone-cream .chapter__n {
+  background: none;
+  color: var(--gold);
+}
+
+.exp-list { list-style: none; margin-inline: 0; padding: 0; }
+.exp { display: grid; gap: clamp(36px, 4vw, 64px); }
+
+/* One tall frame, two stacked beside it. */
+.exp-trio {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(6px, .7vw, 12px);
+  aspect-ratio: 5 / 4;
+}
+.exp-trio figure { position: relative; margin: 0; overflow: hidden; background: var(--a-tint); }
+.exp-trio__tall { grid-row: 1 / span 2; }
+.exp-trio__tall .parallax-media { position: absolute; inset: -8% 0; }
+.exp-trio img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.exp-credit {
+  margin-top: 12px;
+  font: 500 10px/1.5 var(--font-sans);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--a-ink-3);
+}
+
+/* The route: six days on a gold rail. */
+.exp-route {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border-top: 1px solid var(--a-line);
+}
+.exp-route__day {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 26px clamp(10px, 1.4vw, 22px) 0 0;
+}
+.exp-route__dot {
+  position: absolute;
+  top: -4px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.exp-route__n {
+  font: 600 10px/1.4 var(--font-sans);
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+.exp-route__title {
+  font: 400 clamp(16px, 1.25vw, 19px)/1.25 var(--font-display);
+  color: var(--a-ink);
+  text-wrap: balance;
+}
+.exp-route__night {
+  font: 500 10px/1.5 var(--font-sans);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--a-ink-3);
+}
+
+@media (max-width: 1024px) {
+  .exp-route { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 30px; border-top: 0; }
+  .exp-route__day { border-top: 1px solid var(--a-line); }
+}
+
+@media (max-width: 760px) {
+  .exp-trio { aspect-ratio: 4 / 5; }
+
+  /* The rail turns down the left edge. */
+  .exp-route {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+    border-left: 1px solid var(--a-line);
+    margin-left: 3px;
+  }
+  .exp-route__day {
+    border-top: 0;
+    grid-template-columns: 64px minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 4px;
+    padding: 0 0 22px 22px;
+  }
+  .exp-route__dot { top: 3px; left: -4px; }
+  .exp-route__n { grid-row: 1 / span 2; padding-top: 3px; }
+  .exp-route__title { grid-column: 2; }
+  .exp-route__night { grid-column: 2; }
+}

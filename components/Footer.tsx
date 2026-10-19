@@ -6,6 +6,7 @@ import { mailto, phoneLink, site } from '@/lib/site';
 
 const company = [
   { href: '/work/', label: 'Work' },
+  { href: '/expeditions/', label: 'Expeditions' },
   { href: '/about/', label: 'About' },
   { href: '/contact/', label: 'Contact' },
   { href: '/privacy/', label: 'Privacy' },

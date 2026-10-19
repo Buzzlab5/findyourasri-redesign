@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Fragment, useEffect, useRef } from 'react';
 
-import HeaderCta, { HeaderCtaLabel } from '@/components/HeaderCta';
 import MobileMenu from '@/components/MobileMenu';
 import NavMenu from '@/components/NavMenu';
 import { navLinks } from '@/lib/content';
@@ -78,17 +77,8 @@ export default function Header() {
           })}
         </nav>
 
-        <HeaderCta className="header__cta">
-          <Link
-            href="/contact/"
-            className="pill pill--ink cta-dot"
-            data-track="cta_click"
-            data-cta-location="nav"
-          >
-            <HeaderCtaLabel />
-          </Link>
-        </HeaderCta>
-
+        {/* The menu button sits where "Start a conversation" was (Anthony,
+            15 Oct 2026): About and Contact are behind it. */}
         <MobileMenu />
       </div>
     </header>

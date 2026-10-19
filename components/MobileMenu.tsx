@@ -5,19 +5,30 @@ import { createPortal } from 'react-dom';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { EASE, EASE_LONG, gsap, initGsap, motionIsOff } from '@/lib/gsap';
-import { navLinks } from '@/lib/content';
+import { menuLinks, navLinks } from '@/lib/content';
 import { followLink } from '@/components/NavGuard';
 import { isActivePath } from '@/lib/nav';
 import { mailto, phoneLink, site } from '@/lib/site';
 import { Arrow } from '@/components/Arrow';
 
 /**
- * The phone navigation: a bar button that opens a full-height sheet.
+ * The menu button at the top right, and the sheet it opens.
  *
- * Only rendered below 860px (the button and sheet are display:none above it),
- * so the desktop header is untouched. The sheet is a portal on <body> so it
- * cannot inherit the header's stacking or padding.
+ * Phones: a full-height sheet with every page, the bar's links first.
+ * Desktop: the bar keeps its links, so the sheet drops from the top right as
+ * a panel holding only `menuLinks` (About and Contact); the bar's rows are
+ * hidden there by `.sheet__row--bar`. Rows are numbered by a CSS counter, so
+ * the numbers stay in sequence whichever rows show. The sheet is a portal on
+ * <body> so it cannot inherit the header's stacking or padding.
  */
+type Row = (typeof navLinks)[number] & { bar: boolean };
+
+/** Every row the phone sheet shows; `bar` marks the ones desktop keeps in the bar. */
+const rows: Row[] = [
+  ...navLinks.map((link) => ({ ...link, bar: true })),
+  ...menuLinks.map((link) => ({ ...link, bar: false })),
+];
+
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   // The Work row's own dropdown inside the sheet.
@@ -143,11 +154,22 @@ export default function MobileMenu() {
 
       {open &&
         createPortal(
-          <div className="sheet" ref={sheetRef} role="dialog" aria-modal="true" aria-label="Menu">
+          <div
+            className="sheet"
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            // Desktop: a click on the dimmed page around the panel closes it.
+            onClick={(event) => {
+              if (event.target === event.currentTarget) close();
+            }}
+          >
             <div className="sheet__panel">
               <nav className="sheet__nav" aria-label="Primary">
-                {[...navLinks, { href: '/contact/', label: 'Contact' }].map((link, i) => {
+                {rows.map((link) => {
                   const current = isActivePath(pathname, link.href);
+                  const bar = link.bar ? ' sheet__row--bar' : '';
                   return (
                     <Fragment key={link.href}>
                       {'children' in link && link.children ? (
@@ -155,13 +177,13 @@ export default function MobileMenu() {
                         // and only they navigate.
                         <button
                           type="button"
-                          className={`sheet__row sheet__row--menu${current ? ' is-current' : ''}${subOpen ? ' is-open' : ''}`}
+                          className={`sheet__row sheet__row--menu${bar}${current ? ' is-current' : ''}${subOpen ? ' is-open' : ''}`}
                           aria-expanded={subOpen}
                           aria-controls="sheet-sub-work"
                           onClick={() => setSubOpen((v) => !v)}
                         >
                           <span>
-                            <i aria-hidden="true">{String(i + 1).padStart(2, '0')}</i>
+                            <i aria-hidden="true" />
                             {link.label}
                             <svg className="sheet__chev" viewBox="0 0 10 6" width="16" height="10" aria-hidden="true">
                               <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
@@ -171,12 +193,12 @@ export default function MobileMenu() {
                       ) : (
                         <button
                           type="button"
-                          className={`sheet__row${current ? ' is-current' : ''}`}
+                          className={`sheet__row${bar}${current ? ' is-current' : ''}`}
                           aria-current={current ? 'page' : undefined}
                           onClick={() => go(link.href)}
                         >
                           <span>
-                            <i aria-hidden="true">{String(i + 1).padStart(2, '0')}</i>
+                            <i aria-hidden="true" />
                             {link.label}
                           </span>
                         </button>
@@ -184,7 +206,7 @@ export default function MobileMenu() {
                       {'children' in link && link.children ? (
                         <div
                           id="sheet-sub-work"
-                          className={`sheet__sub${subOpen ? ' is-open' : ''}`}
+                          className={`sheet__sub${bar}${subOpen ? ' is-open' : ''}`}
                           aria-hidden={!subOpen}
                         >
                           <div className="sheet__sub-inner">

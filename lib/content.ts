@@ -177,7 +177,11 @@ export const liveWorkSlugs: WorkCategorySlug[] = ["production"];
 /** Off for now (29 Sep). Flip back on to return "Sectors" to the header nav. */
 const SHOW_SECTORS_NAV = false;
 
-/** The header's page links. The call to action to /contact/ sits beside them. */
+/**
+ * The header bar's page links. About and Contact sit in the menu at the top
+ * right instead (`menuLinks`), which replaced the "Start a conversation"
+ * button (Anthony, 15 Oct 2026).
+ */
 const workNavChildren = (
   [
     { slug: "production", href: "/work/production/", label: "Production" },
@@ -208,7 +212,14 @@ export const navLinks: {
   workNav,
   ...(SHOW_SECTORS_NAV ? [{ href: "/sectors/", label: "Sectors" }] : []),
   { href: "/services/", label: "Services" },
+  // Anthony, 19 Oct 2026: "Make the menu production, services, expeditions".
+  { href: "/expeditions/", label: "Expeditions" },
+];
+
+/** The menu behind the top-right button. On phones it follows the bar links. */
+export const menuLinks: { href: string; label: string }[] = [
   { href: "/about/", label: "About" },
+  { href: "/contact/", label: "Contact" },
 ];
 
 /* ============================================================
