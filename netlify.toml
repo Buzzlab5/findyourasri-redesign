@@ -31,6 +31,17 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
+# Private pitches: noindex, and never linked or listed (app/(pitch)/).
+[[headers]]
+  for = "/pitch/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pitch-data/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 # Legacy leather-goods store: send people to the page that exists.
 [[redirects]]
   from = "/products/*"
