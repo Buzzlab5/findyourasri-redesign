@@ -1607,3 +1607,75 @@ a.chip.is-on:hover { color: var(--gold-2); }
   .svc-index__go { grid-column: 3; grid-row: 1; }
   .band--cta { aspect-ratio: 4 / 5; }
 }
+
+/* ============================================================
+   Birch in the black theme (Anthony, 7 Oct 2026: "Use the black theme,
+   with gold and greens", then "keep the lighter green, remove the darker
+   green")
+
+   The black ground and the Asri gold stay as they are. Birch #cac7b1 is the
+   one green: the reading pages that were cream, and the buttons. There is
+   no moss. Delete this block to return to black and gold alone.
+   ============================================================ */
+:root {
+  --birch: #CAC7B1;
+  --cream: var(--birch);
+  --btn: var(--birch);
+  --btn-hover: var(--gold-2);
+  --btn-ink: #0C0A08;
+}
+
+/* The reading pages in birch: near-black type, the gold a shade deeper so
+   the small caps keep their contrast (#654B22 on birch is 4.8:1). Buttons
+   here invert: black, with birch type. */
+.tone-cream {
+  --a-ink: #121A1C;
+  --a-ink-2: rgba(18, 26, 28, .8);
+  --a-ink-3: rgba(18, 26, 28, .62);
+  --a-canvas: var(--birch);
+  --a-card: #D3D0BC;
+  --a-tint: #BDBAA3;
+  --a-line: rgba(101, 75, 34, .5);
+  --a-line-soft: rgba(18, 26, 28, .16);
+  --a-green: #654B22;
+  --a-ocean: #8C6A35;
+  --a-aqua: #654B22;
+  --a-accent: #8C6A35;
+  --gold: #8C6A35;
+  --gold-2: #654B22;
+  --kick: #654B22;
+  --btn: #0C0A08;
+  --btn-hover: #2A241C;
+  --btn-ink: var(--birch);
+}
+
+/* Buttons: birch with black type on the black; gold on hover. */
+.pill--ink,
+.pill--light,
+.hero .pill--light,
+.svc-cover .pill--light,
+.band .pill--light {
+  background: var(--btn);
+  border-color: var(--btn);
+  color: var(--btn-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.pill--ink:hover,
+.pill--light:hover,
+.hero .pill--light:hover,
+.svc-cover .pill--light:hover,
+.band .pill--light:hover {
+  background: var(--btn-hover);
+  border-color: var(--btn-hover);
+  color: var(--btn-ink);
+}
+.tone-cream .pill--ink:hover { color: var(--birch); }
+.browser__book b { background: var(--btn); color: var(--btn-ink); }
+
+/* The home tiles' client marks: a deeper shade behind them, so a thin white
+   mark (Desa Hay) still reads against a bright sky. */
+.tile__media:has(.work-tile__logo)::before {
+  height: 42%;
+  background: linear-gradient(to bottom, rgba(var(--shade), .72), rgba(var(--shade), .28) 55%, rgba(var(--shade), 0));
+}
