@@ -383,6 +383,43 @@ a.chip.is-on:hover { color: var(--gold-2); }
   border-bottom-color: var(--a-line);
 }
 
+/* The rows count themselves, so the numbers run in order whichever rows
+   show. */
+.sheet__nav { counter-reset: sheet-row; }
+.sheet__row { counter-increment: sheet-row; }
+.sheet__row i::before { content: counter(sheet-row, decimal-leading-zero); }
+
+/* Desktop: the menu button takes the place of "Start a conversation" at the
+   top right (Anthony, 15 Oct 2026). The bar keeps Production, Services
+   and Expeditions; the panel that drops from the button holds About and
+   Contact, with the email and WhatsApp under them. */
+@media (min-width: 861px) {
+  .burger { display: inline-flex; }
+  .sheet {
+    display: block;
+    background: rgba(var(--shade), .55);
+  }
+  .sheet__row--bar { display: none; }
+  .sheet__panel {
+    inset: 0 0 auto auto;
+    width: min(460px, 100vw);
+    max-height: 100svh;
+    justify-content: flex-start;
+    gap: 44px;
+    padding: calc(var(--hdr-h) + 44px) 48px 48px;
+    border-left: 1px solid var(--a-line);
+    border-bottom: 1px solid var(--a-line);
+  }
+  .sheet__nav { flex: none; }
+  .sheet__row span,
+  .sheet__row.is-current span,
+  .sheet__row.is-current:hover span {
+    justify-content: flex-start;
+    font-size: 36px;
+  }
+  .sheet__foot { align-items: flex-start; text-align: left; }
+}
+
 /* ============================================================
    Home 01: the cover
    Full bleed and a full screen, as a proposal's cover page: the photograph

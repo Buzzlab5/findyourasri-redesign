@@ -111,8 +111,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* The phone header hands navigation to a JS-driven sheet, so without
             JS there would be no nav at all. Fall back to the inline links. */}
         <noscript>
-          <style>{`@media (max-width: 860px){
-            .burger{display:none!important}
+          <style>{`.burger{display:none!important}
+          @media (max-width: 860px){
             .nav{display:flex!important;flex-wrap:wrap;gap:10px 14px;font-size:13.5px}
             .nav__sep{display:none}
           }`}</style>

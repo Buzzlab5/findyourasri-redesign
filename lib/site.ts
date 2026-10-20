@@ -110,6 +110,12 @@ export const pages = {
     description:
       'Marketing and production for hospitality, travel and experience operators, global brands, and destinations and tourism boards.',
   },
+  expeditions: {
+    path: '/expeditions/',
+    title: 'Expeditions | Asri',
+    description:
+      'Trips for a brand and its guests, planned, hosted, filmed and photographed by one team. San Marzano in Komodo, and itineraries for Bhutan, New Zealand and Mongolia.',
+  },
   services: {
     path: '/services/',
     title: 'Services and Partnerships | Asri',
