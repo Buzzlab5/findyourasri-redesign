@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -56,6 +56,24 @@ export default function MobileMenu() {
     timeline.current.timeScale(1.7).reverse();
     timeline.current.eventCallback('onReverseComplete', () => setOpen(false));
   }, []);
+
+  /* ---------- desktop: the panel's right edge follows the button ---------- */
+  // The sheet is a portal on <body>, so it measures from the screen's edge while
+  // the button sits inside the capped header. Past the cap those are different
+  // places, so the offset is read off the button and handed to the CSS.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const button = buttonRef.current;
+      const sheet = sheetRef.current;
+      if (!button || !sheet) return;
+      const right = window.innerWidth - button.getBoundingClientRect().right;
+      sheet.style.setProperty('--burger-right', `${Math.max(0, right)}px`);
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [open]);
 
   /* ---------- open: keys, scroll lock, focus ---------- */
   useEffect(() => {

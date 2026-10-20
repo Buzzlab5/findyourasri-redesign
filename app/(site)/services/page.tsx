@@ -71,7 +71,6 @@ export default function ServicesPage() {
           <div className="svc-cover__scrim" aria-hidden="true" />
           <Breadcrumbs light items={[{ href: "/services/", label: "Services" }]} />
           <div className="svc-cover__body">
-            <p className="kick kick--rule reveal">Services</p>
             <h1 id="svc-title" className="svc-cover__title">
               Campaigns, Shot and Run by <em>One Team.</em>
             </h1>

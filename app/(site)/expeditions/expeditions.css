@@ -9,6 +9,14 @@
 /* The cover's two sentences, one to a line. */
 .exp-cover__line { display: block; }
 
+/* The services cover caps its title at 13ch, which pushes "Mountains." under
+   "To the". Here each sentence is a line of its own, so the cap goes; on a
+   phone the second line may still wrap rather than run off the screen. */
+.svc-cover__title:has(.exp-cover__line) { max-width: none; }
+@media (min-width: 640px) {
+  .exp-cover__line { white-space: nowrap; }
+}
+
 /* The client's mark, a white PNG drawn in the section's ink. */
 .exp-logo {
   display: block;

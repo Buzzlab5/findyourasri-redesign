@@ -59,7 +59,6 @@ export default function ExpeditionsPage() {
           <div className="svc-cover__scrim" aria-hidden="true" />
           <Breadcrumbs light items={[{ href: '/expeditions/', label: 'Expeditions' }]} />
           <div className="svc-cover__body">
-            <p className="kick kick--rule reveal">Expeditions</p>
             <h1 id="exp-title" className="svc-cover__title">
               <span className="exp-cover__line">From the Sea.</span>{' '}
               <span className="exp-cover__line">
