@@ -66,6 +66,97 @@ Kalau site kamu ada di Netlify: caranya sama, di **Site configuration**, lalu
 Kalau form menampilkan "This form is not connected yet", artinya langkah 4 belum
 selesai atau belum di-redeploy.
 
+## Sinkronisasi ke Google Drive dan Docs
+
+Setiap profile yang masuk otomatis dibuatkan satu folder di Google Drive, berisi
+Google Doc rapi dari semua jawaban dan salinan file yang di-upload (dipilah per
+kategori: Logo, Photos, dst). Fitur ini mati sampai keempat kunci Google di
+bawah diisi, jadi aman dipasang lebih dulu.
+
+Untuk testing dipakai Drive pribadi. Nanti untuk Asri, **cukup mengganti 4 kunci
+itu dengan milik akun Asri, tanpa mengubah kode**.
+
+### A. Urutan pasang (penting)
+
+1. **SQL dulu.** Di Supabase **SQL Editor**, jalankan isi file
+   `supabase/migrations/20261026000100_client_profile_summary.sql`
+   (menambah satu kolom). Kalau function dipasang sebelum ini, form akan error.
+2. **Function.** Buka **Edge Functions**, klik `client-profile`, tab **Code**.
+   Hapus isinya, paste seluruh `supabase/functions/client-profile/index.ts`
+   yang baru, lalu **Deploy**. Cek lagi tab **Settings**: toggle JWT harus tetap OFF.
+3. **Site.** Commit dan push perubahan terbaru ke production (form sekarang
+   mengirim satu data tambahan untuk isi Doc).
+
+### B. Siapkan Google (sekitar 15 menit, semua lewat browser)
+
+Pakai akun Google pribadimu untuk semua langkah ini.
+
+1. Buka `console.cloud.google.com`, klik pemilih project di atas, **New project**,
+   beri nama `asri-intake-test`, **Create**.
+2. Menu **APIs & Services**, lalu **Library**, cari **Google Drive API**, klik
+   **Enable**.
+3. Menu **OAuth consent screen** (atau **Google Auth Platform**), lalu **Get started**:
+   - App name: `Asri intake`, User support email: emailmu.
+   - Audience: **External**.
+   - Contact email: emailmu. Setujui, lalu **Create**.
+4. Di bagian **Data Access** (atau **Scopes**), klik **Add or remove scopes**,
+   cari dan centang `.../auth/drive` ("See, edit, create, and delete all of your
+   Google Drive files"), lalu **Update** dan **Save**.
+5. Di bagian **Audience**, klik **Publish app** lalu konfirmasi. **Ini penting:**
+   kalau dibiarkan mode Testing, kuncinya mati sendiri setelah 7 hari. Google
+   akan bilang aplikasinya "belum diverifikasi", dan itu wajar untuk pemakaian
+   sendiri.
+6. Menu **Credentials**, lalu **Create credentials**, lalu **OAuth client ID**:
+   - Application type: **Web application**.
+   - Di **Authorized redirect URIs** tambahkan persis:
+     `https://developers.google.com/oauthplayground`
+   - **Create**. Catat **Client ID** dan **Client secret**.
+7. Buka `developers.google.com/oauthplayground`:
+   - Klik ikon roda gigi di kanan atas, centang **Use your own OAuth credentials**,
+     isi Client ID dan Client secret tadi.
+   - Di kolom kiri, kotak "Input your own scopes" ketik
+     `https://www.googleapis.com/auth/drive`, klik **Authorize APIs**.
+   - Login dengan akun pribadimu. Kalau muncul peringatan "Google hasn't verified
+     this app", klik **Advanced**, lalu **Go to ... (unsafe)**, lalu izinkan.
+   - Kembali di Playground, klik **Exchange authorization code for tokens**.
+   - Salin nilai **Refresh token**.
+8. Di Google Drive, buat folder baru, misalnya `Asri client profiles (test)`.
+   Buka folder itu. ID folder adalah bagian terakhir alamat di address bar,
+   setelah `/folders/`.
+
+### C. Isi kuncinya di Supabase
+
+Di Supabase, **Edge Functions**, lalu **Secrets**, tambahkan empat ini:
+
+| Nama | Isi |
+|---|---|
+| `GOOGLE_CLIENT_ID` | Client ID dari langkah B6 |
+| `GOOGLE_CLIENT_SECRET` | Client secret dari langkah B6 |
+| `GOOGLE_REFRESH_TOKEN` | Refresh token dari langkah B7 |
+| `GOOGLE_DRIVE_FOLDER_ID` | ID folder dari langkah B8 |
+
+**Ketik atau paste langsung di Supabase. Jangan kirim kunci ini ke siapa pun,
+termasuk di chat.** Orang yang punya kunci ini bisa membaca dan mengubah seluruh
+Drive-mu.
+
+### D. Coba
+
+Kirim satu profile lewat form. Dalam beberapa detik sampai satu menit, di folder
+Drive-mu muncul folder baru bernama `NAMA BISNIS (tanggal)`, berisi Google Doc
+dan subfolder file. Di Supabase, baris profile itu `status`-nya jadi `synced`
+dan kolom `google_doc_url` terisi. Kalau `sync_failed`, pesan penyebabnya ada di
+kolom `sync_error`.
+
+### Yang perlu diketahui
+
+- Profile yang masuk **sebelum** keempat kunci diisi tidak ikut tersinkron
+  sendiri. Kirim ulang untuk tes.
+- Kalau sinkron gagal (misalnya Google sedang bermasalah), datanya tetap aman di
+  Supabase, hanya `status`-nya `sync_failed`. Belum ada tombol untuk mengulang
+  otomatis.
+- Satu file maksimal 50 MB, dan semua file disalin satu per satu. Profile dengan
+  puluhan file besar bisa memakan waktu beberapa menit.
+
 ## Cara pasang (pakai terminal)
 
 Untuk yang terbiasa dengan terminal. Hasilnya sama dengan langkah 1 dan 2 di atas.
@@ -98,6 +189,6 @@ Bisa diisi di **Edge Functions**, lalu **Secrets**, atau lewat
 - **File yang di-upload tapi form-nya tidak jadi dikirim** tetap tersimpan di
   bucket. Bersihkan sesekali lewat dashboard **Storage** (folder yang namanya
   tidak ada di `client_profiles`).
-- Kolom `status` di tabel `client_profiles` akan tetap `submitted` sampai
-  sinkronisasi ke Google Docs dan Drive dibuat. Setelah itu berubah jadi
-  `synced` atau `sync_failed`.
+- Kolom `status` di tabel `client_profiles` tetap `submitted` kalau sinkronisasi
+  Google belum dinyalakan. Setelah dinyalakan, nilainya jadi `synced` atau
+  `sync_failed` (lihat bagian Sinkronisasi di atas).
