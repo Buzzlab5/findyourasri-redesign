@@ -1,0 +1,324 @@
+/* The client profile intake (/client-profile/). Sits on the site's cream
+   reading page (.tone-cream) so a 25 minute form is easy on the eyes. Colours,
+   type and buttons come from brand.css; only the form's own layout is here.
+   Square corners, gold hairlines, no numbering and no kicker labels. */
+
+.cp .cp__body.tone-cream { margin-top: 0; padding-top: clamp(20px, 2.4vw, 32px); }
+.cp__ref { margin-top: 14px; color: var(--a-ink-3); font: 400 14px/1.5 var(--font-sans); }
+.cp__layout {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+/* ---- section rail ---- */
+.cp__side { position: sticky; top: calc(var(--hdr-h) + 16px); max-height: calc(100vh - var(--hdr-h) - 32px); overflow-y: auto; }
+.cp__title { margin: 0 0 8px 10px; font: 400 clamp(24px, 2.2vw, 30px)/1.1 var(--font-display); letter-spacing: .01em; text-transform: uppercase; }
+.cp__sub { margin: 0 0 20px 10px; color: var(--a-ink-3); font: 400 13.5px/1.5 var(--font-sans); }
+.cp__h3 { margin: 28px 0 0; font: 400 22px/1.2 var(--font-display); text-transform: uppercase; letter-spacing: .01em; }
+.cp__rail ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.cp__rail button {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--a-ink-3);
+  font: 400 14.5px/1.35 var(--font-sans);
+}
+.cp__rail button:hover { color: var(--a-ink); }
+.cp__rail button[aria-current='step'] { color: var(--a-ink); box-shadow: inset 2px 0 0 var(--gold); background: var(--a-card); }
+.cp__rail button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.cp__tick {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--a-line);
+  color: var(--a-ink-3);
+  font: 500 11px/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.cp__rail button:hover .cp__tick { border-color: var(--gold); }
+.cp__rail button[aria-current='step'] .cp__tick { border-color: var(--gold); color: var(--a-ink); }
+.cp__rail button.is-done .cp__tick { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.cp__progress { height: 2px; margin: 16px 10px 0; background: var(--a-line-soft); overflow: hidden; }
+.cp__progress span { display: block; height: 100%; background: var(--gold); transition: width .3s; }
+
+/* ---- the panel ---- */
+.cp__panel {
+  min-width: 0;
+  background: var(--a-card);
+  border: 1px solid var(--a-line);
+  padding: clamp(22px, 3.6vw, 48px);
+}
+.cp__h2 {
+  margin: 0 0 10px;
+  font: 400 clamp(26px, 3vw, 38px)/1.15 var(--font-display);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.cp__h2:focus { outline: none; }
+.cp__lede { max-width: 62ch; margin: 0 0 32px; color: var(--a-ink-2); }
+.cp__note { max-width: 66ch; margin: -12px 0 32px; padding: 14px 18px; background: var(--a-tint); border-left: 2px solid var(--gold); font-size: 15px; }
+.cp__fields { display: flex; flex-direction: column; gap: 28px; }
+
+/* ---- questions ---- */
+.cp-field .field__label,
+.cp-q__label {
+  padding: 0;
+  font: 600 15.5px/1.4 var(--font-sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--a-ink);
+}
+.cp-q { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 8px; }
+.cp-q__label { margin-bottom: 2px; }
+.cp-field { display: grid; gap: 8px; }
+.cp-req { margin-left: 10px; font: 400 13px/1 var(--font-sans); color: var(--gold); }
+.cp-help { display: block; max-width: 62ch; font: 400 13.5px/1.5 var(--font-sans); color: var(--a-ink-3); }
+.cp-field input,
+.cp-field select,
+.cp-field textarea { width: 100%; max-width: 640px; }
+.cp-field textarea { min-height: 104px; padding: 12px; border: 1px solid var(--a-line); resize: vertical; }
+.cp-field textarea:focus { box-shadow: none; outline: 2px solid var(--gold); outline-offset: 0; }
+.cp .field__error,
+.cp .is-invalid .field__error { color: #A8321F; font: 400 13.5px/1.4 var(--font-sans); }
+.cp .field.is-invalid input,
+.cp .field.is-invalid select,
+.cp .field.is-invalid textarea { border-color: #A8321F; }
+.cp-q.is-invalid .cp-chip span { border-color: #A8321F; }
+.cp-sub { margin-left: 14px; padding-left: 18px; border-left: 1px solid var(--a-line-soft); }
+
+.cp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-chip { position: relative; display: inline-flex; }
+.cp-chip input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.cp-chip span {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--a-line);
+  font: 400 14.5px/1.3 var(--font-sans);
+  color: var(--a-ink);
+  transition: background .15s, border-color .15s, color .15s;
+}
+.cp-chip:hover span { border-color: var(--gold); }
+.cp-chip input:checked + span { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.cp-chip input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.cp-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; max-width: 640px; }
+.cp-pair input {
+  min-height: 44px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--a-line);
+  background: transparent;
+  color: var(--a-ink);
+  font: 400 16px/1.4 var(--font-sans);
+  min-width: 0;
+}
+.cp-pair input:focus { outline: none; border-color: var(--gold); box-shadow: 0 1px 0 0 var(--gold); }
+
+.cp-consent { display: flex; gap: 12px; align-items: flex-start; max-width: 62ch; font-size: 15.5px; cursor: pointer; }
+.cp-consent input { margin-top: 5px; accent-color: var(--gold); }
+
+/* ---- brand kit ---- */
+.cp-kit__drop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  max-width: 640px;
+  padding: 16px 18px;
+  border: 1px dashed var(--a-line);
+  transition: background .15s, border-color .15s;
+}
+.cp-kit__drop.is-over { background: var(--a-tint); border-style: solid; border-color: var(--gold); }
+.cp-kit__drop .pill { height: 40px; padding: 0 18px; }
+.cp-kit__or { flex: 1 1 220px; color: var(--a-ink-3); font: 400 13.5px/1.5 var(--font-sans); text-wrap: pretty; }
+.cp-kit__list { list-style: none; margin: 0; padding: 0; max-width: 640px; border-top: 1px solid var(--a-line-soft); }
+.cp-kit__file {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 120px 32px;
+  gap: 8px 14px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--a-line-soft);
+  font: 400 14.5px/1.4 var(--font-sans);
+}
+.cp-kit__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-kit__size { color: var(--a-ink-3); font-size: 13px; white-space: nowrap; }
+.cp-kit__state { font-size: 13px; color: var(--a-ink-3); }
+.cp-kit__file.is-done .cp-kit__state { color: var(--gold-2); }
+.cp-kit__file.is-error .cp-kit__state { color: #A8321F; grid-column: 1 / -1; order: 5; }
+.cp-kit__file.is-error .cp-kit__name { text-decoration: line-through; color: var(--a-ink-3); }
+.cp-kit__remove {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--a-line);
+  background: transparent;
+  color: var(--a-ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cp-kit__remove:hover { border-color: var(--gold); color: var(--gold-2); }
+
+/* ---- actions, errors, done ---- */
+.cp__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--a-line-soft);
+}
+.cp__actions--start { justify-content: flex-start; border-top: 0; padding-top: 0; margin-top: 28px; }
+.cp__actions .pill[disabled] { opacity: .4; cursor: default; pointer-events: none; }
+.cp__hint { color: var(--a-ink-3); font: 400 13px/1.4 var(--font-sans); }
+.cp__captcha { margin-top: 28px; }
+.cp__failed { margin-top: 28px; padding: 14px 18px; border-left: 2px solid #A8321F; background: var(--a-tint); font: 400 15px/1.5 var(--font-sans); }
+.cp__failed p { margin: 0 0 8px; }
+.cp__failed a,
+.cp__linkbtn { color: inherit; border-bottom: 1px solid currentColor; }
+.cp__linkbtn { all: unset; cursor: pointer; border-bottom: 1px solid currentColor; }
+.cp__copybox { display: block; width: 100%; min-height: 200px; margin-top: 16px; padding: 12px; border: 1px solid var(--a-line); background: transparent; color: var(--a-ink); font: 13px/1.5 var(--font-sans); }
+.cp__copybox[hidden] { display: none; }
+.cp__done { max-width: 720px; margin: 0 auto; }
+.cp__sum { display: grid; gap: 0; margin: 20px 0 0; border-top: 1px solid var(--a-line-soft); }
+.cp__sum div { display: grid; grid-template-columns: minmax(140px, 240px) minmax(0, 1fr); gap: 4px 20px; padding: 12px 0; border-bottom: 1px solid var(--a-line-soft); }
+.cp__sum dt { color: var(--a-ink-3); font-size: 14px; }
+.cp__sum dd { margin: 0; overflow-wrap: anywhere; }
+
+/* On a short laptop screen the title, note and sixteen sections do not all fit beside the form: let them scroll with the page. */
+@media (max-height: 860px) and (min-width: 861px) {
+  .cp__side { position: static; max-height: none; overflow: visible; }
+}
+@media (max-width: 860px) {
+  .cp__layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cp__side { position: static; max-height: none; overflow: visible; }
+  .cp__rail ol { flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
+  .cp__rail button { width: auto; white-space: nowrap; }
+  .cp-pair { grid-template-columns: minmax(0, 1fr); }
+  .cp-kit__file { grid-template-columns: minmax(0, 1fr) 32px; }
+  .cp-kit__name { grid-column: 1; grid-row: 1; }
+  .cp-kit__remove { grid-column: 2; grid-row: 1; }
+  .cp-kit__size, .cp-kit__state { grid-column: 1 / -1; }
+  .cp__sum div { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp *, .cp *::before, .cp *::after { transition: none !important; }
+}
+
+/* ---- phone with country picker ---- */
+.cp-phone { position: relative; max-width: 640px; }
+.cp-phone__row { display: flex; align-items: flex-end; gap: 12px; }
+.cp-phone__row input { flex: 1 1 auto; min-width: 0; }
+.cp-phone__code {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--a-line);
+  background: transparent;
+  color: var(--a-ink);
+  font: 400 16px/1.4 var(--font-sans);
+  cursor: pointer;
+}
+.cp-phone__code:hover,
+.cp-phone__code[aria-expanded='true'] { border-color: var(--gold); }
+.cp-phone__code:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.cp-phone__caret { width: 6px; height: 6px; border: solid currentColor; border-width: 0 1px 1px 0; transform: translateY(-2px) rotate(45deg); }
+.cp-phone__pop {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(380px, 100%);
+  background: var(--a-card);
+  border: 1px solid var(--gold);
+  box-shadow: 0 12px 32px rgba(18, 26, 28, .16);
+}
+.cp-phone .cp-phone__search {
+  width: 100%;
+  max-width: none;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--a-line-soft);
+  background: transparent;
+  color: var(--a-ink);
+  font: 400 15px/1.4 var(--font-sans);
+}
+.cp-phone .cp-phone__search:focus { outline: none; box-shadow: none; }
+.cp-phone__list { list-style: none; margin: 0; padding: 4px 0; max-height: 280px; overflow-y: auto; overscroll-behavior: contain; }
+.cp-phone__list li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 14px;
+  font: 400 14.5px/1.3 var(--font-sans);
+  cursor: pointer;
+}
+.cp-phone__list li.is-active { background: var(--a-tint); }
+.cp-phone__list li[aria-selected='true'] .cp-phone__name { font-weight: 600; }
+.cp-phone__dial { color: var(--a-ink-3); font-size: 13px; }
+.cp-phone__list .cp-phone__none { display: block; color: var(--a-ink-3); cursor: default; }
+
+/* No single word alone on the last line. text-wrap does it where supported; the form's copy also ties its last two words (nw in ClientProfileApp). */
+.cp p,
+.cp .cp-help,
+.cp .cp-q__label,
+.cp .field__label,
+.cp .cp-consent span { text-wrap: pretty; }
+.cp .cp__sub,
+.cp .cp__lede,
+.cp .cp__title,
+.cp .cp__h2 { text-wrap: balance; }
+
+/* ---- brand colours ---- */
+.cp-colors { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 640px; }
+.cp-color { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; border: 1px solid var(--a-line); }
+.cp .cp-color__swatch {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--a-line-soft);
+  background: none;
+  cursor: pointer;
+}
+.cp-color__swatch::-webkit-color-swatch-wrapper { padding: 0; }
+.cp-color__swatch::-webkit-color-swatch { border: 0; }
+.cp-color__swatch::-moz-color-swatch { border: 0; }
+.cp-color__swatch:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.cp .cp-color__hex {
+  width: 92px;
+  min-width: 0;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid var(--a-line);
+  background: transparent;
+  color: var(--a-ink);
+  font: 500 14px/1.3 var(--font-sans);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.cp .cp-color__hex:focus { outline: none; border-color: var(--gold); box-shadow: 0 1px 0 0 var(--gold); }
+.cp-colors__add { height: 40px; padding: 0 18px; }

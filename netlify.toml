@@ -37,6 +37,12 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
+# Client profile intake: sent by hand, never linked or listed (app/(intake)/).
+[[headers]]
+  for = "/client-profile/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 [[headers]]
   for = "/pitch-data/*"
   [headers.values]
