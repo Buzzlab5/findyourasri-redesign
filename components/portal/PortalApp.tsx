@@ -25,6 +25,7 @@ type Ask = { n: string; title: string; says: string; stop: string; open: boolean
 type Layer = { layer: string; counts: string; readable: boolean; blocked: string };
 type Row = { what: string; when: string; has: string };
 type Item = { title: string; says: string };
+type Section = { title: string; sub: string };
 
 type Payload = {
   client: string;
@@ -39,8 +40,12 @@ type Payload = {
   traction: Layer[];
   reporting: Row[];
   open: Item[];
-  rights: { logged: number; cleared: number; identifiable: number };
+  rights: { logged: number; cleared: number; identifiable: number; sentence: string };
   contact: { name: string; role: string };
+  cover: { title: string; lede: string; stamp: string };
+  sections: Record<string, Section>;
+  numbers_rule: string;
+  footer: { provenance: string; privacy: string };
 };
 
 const b64 = (s: string) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
@@ -78,7 +83,9 @@ function Lock({ onOpen, error, busy }: { onOpen: (pw: string) => void; error: st
         <img src="/img/asri-white.png" alt="Asri" className="po-lock-mark" />
         <p className="po-kick">A private client page</p>
         <h1>Enter your password</h1>
-        <p className="po-lock-lede">We sent it with the link. The page opens on this device only.</p>
+        <p className="po-lock-lede">
+          We sent it with the link. The page stays locked until the password is typed in.
+        </p>
         <label htmlFor="po-pw" className="po-vh">
           Password
         </label>
@@ -105,14 +112,14 @@ function Lock({ onOpen, error, busy }: { onOpen: (pw: string) => void; error: st
 }
 
 /* --------------------------------------------------------------- the sections */
-function Head({ n, title, sub }: { n: string; title: string; sub?: string }) {
+function Head({ n, s, title }: { n: string; s: Section; title?: string }) {
   return (
     <header className="po-head">
       <p className="po-kick">
         <span className="po-num">{n}</span>
-        {title}
+        {title ?? s.title}
       </p>
-      {sub ? <p className="po-sub">{sub}</p> : null}
+      {s.sub ? <p className="po-sub">{s.sub}</p> : null}
     </header>
   );
 }
@@ -124,23 +131,20 @@ function Page({ c }: { c: Payload }) {
       <section className="po-cover">
         <div className="po-in">
           <p className="po-kick">{c.client} and Asri</p>
-          <h1 className="po-title">The Runsheet</h1>
-          <p className="po-lede">
-            What we are doing, when it happens, and how you will see it working. One page, no jargon. If a line
-            here looks wrong to you, it is wrong, and we want to hear it.
-          </p>
+          <h1 className="po-title">{c.cover.title}</h1>
+          <p className="po-lede">{c.cover.lede}</p>
           <p className="po-stamp">
             <span className="po-live" aria-hidden="true" />
             Updated {c.built_human}
             <span className="po-dot">·</span>
-            This page is rebuilt from our own files, so it changes as the work does
+            {c.cover.stamp}
           </p>
         </div>
       </section>
 
       <section className="po-sec">
         <div className="po-in">
-          <Head n="01" title="Where this stands today" sub="Four numbers, each read from our files rather than typed in by hand." />
+          <Head n="01" s={c.sections['01']} />
           <div className="po-tiles">
             {c.headline.tiles.map((t) => (
               <div className="po-tile" key={t.what}>
@@ -155,11 +159,7 @@ function Page({ c }: { c: Payload }) {
 
       <section className="po-sec">
         <div className="po-in">
-          <Head
-            n="02"
-            title="What you get every month"
-            sub="The whole monthly package. Anything outside these boxes is extra, and we quote it before we do it."
-          />
+          <Head n="02" s={c.sections['02']} />
           <div className="po-cards">
             {c.package.map((p) => (
               <div className="po-card" key={p.what}>
@@ -174,18 +174,14 @@ function Page({ c }: { c: Payload }) {
 
       <section className="po-sec">
         <div className="po-in">
-          <Head
-            n="03"
-            title="Built already"
-            sub="Finished work, before month one has officially started. The ones marked with you are waiting on an approval."
-          />
+          <Head n="03" s={c.sections['03']} />
           <ul className="po-list">
             {c.filed.map((f) => (
               <li key={f.label}>
                 <span className="po-when">{f.date}</span>
                 <span className="po-line">{f.label}</span>
-                <span className={f.state === 'yours' ? 'po-pill po-pill-gold' : 'po-pill'}>
-                  {f.state === 'yours' ? 'With you' : 'Internal'}
+                <span className={f.state === 'internal' ? 'po-pill' : 'po-pill po-pill-gold'}>
+                  {f.state === 'sent' ? 'With you' : f.state === 'ready' ? 'Ready for you' : 'Internal'}
                 </span>
               </li>
             ))}
@@ -195,11 +191,7 @@ function Page({ c }: { c: Payload }) {
 
       <section className="po-sec po-cream">
         <div className="po-in">
-          <Head
-            n="04"
-            title="The countdown to opening night"
-            sub="Opening night is day zero. Everything counts backwards and forwards from it. Give us the date and every row below becomes a real date."
-          />
+          <Head n="04" s={c.sections['04']} />
           <ol className="po-phases">
             {c.countdown.map((p) => (
               <li key={p.n}>
@@ -220,8 +212,8 @@ function Page({ c }: { c: Payload }) {
         <div className="po-in">
           <Head
             n="05"
-            title={`What we need from you: ${openAsks} of ${c.asks.length} still open`}
-            sub="Each one unlocks work that is already written and ready to run. This list ticks itself off as the answers arrive."
+            s={c.sections['05']}
+            title={`${c.sections['05'].title}: ${openAsks} of ${c.asks.length} still open`}
           />
           <ul className="po-asks">
             {c.asks.map((a) => (
@@ -250,11 +242,7 @@ function Page({ c }: { c: Payload }) {
 
       <section className="po-sec">
         <div className="po-in">
-          <Head
-            n="06"
-            title="How we show it is working"
-            sub="Three layers. The top one is the one that matters, and it is the one we cannot read yet."
-          />
+          <Head n="06" s={c.sections['06']} />
           <ul className="po-layers">
             {c.traction.map((t) => (
               <li key={t.layer}>
@@ -268,17 +256,13 @@ function Page({ c }: { c: Payload }) {
               </li>
             ))}
           </ul>
-          <p className="po-quote">
-            Our rule on numbers is strict: we report a number only when we can read it from a real source. No
-            estimates and no borrowed figures. If something is missing, the report says it is missing and names who
-            can fix it, including when that is us.
-          </p>
+          <p className="po-quote">{c.numbers_rule}</p>
         </div>
       </section>
 
       <section className="po-sec">
         <div className="po-in">
-          <Head n="07" title="How you hear from us" />
+          <Head n="07" s={c.sections['07']} />
           <ul className="po-list po-list-rows">
             {c.reporting.map((r) => (
               <li key={r.what}>
@@ -294,11 +278,7 @@ function Page({ c }: { c: Payload }) {
 
       <section className="po-sec">
         <div className="po-in">
-          <Head
-            n="08"
-            title="Still open"
-            sub="We would rather list these than pretend they are settled."
-          />
+          <Head n="08" s={c.sections['08']} />
           <ul className="po-open">
             {c.open.map((o) => (
               <li key={o.title}>
@@ -313,18 +293,12 @@ function Page({ c }: { c: Payload }) {
       <footer className="po-foot">
         <div className="po-in">
           <p>
-            <strong>Where these numbers come from.</strong> The counts on this page are read from our own working
-            files each time it is rebuilt: the brief we keep on your business, our hours log, and the register that
-            tracks every image and who has cleared it. Today that register holds {c.rights.logged} of your images,
-            of which {c.rights.cleared} are cleared for use. Nothing on this page is a projection.
+            <strong>Where these numbers come from.</strong> {c.footer.provenance}
           </p>
           <p>
             Questions, approvals, anything urgent: {c.contact.name}, {c.contact.role}.
           </p>
-          <p className="po-note">
-            Private page. Not listed anywhere and not visible to search engines. Volumes and scope are from the
-            service agreement. The dates in section 04 are relative to an opening date that is not yet set.
-          </p>
+          <p className="po-note">{c.footer.privacy}</p>
         </div>
       </footer>
     </div>
