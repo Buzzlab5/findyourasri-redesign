@@ -21,7 +21,25 @@ type Meta = { v: number; kdf: string; rounds: number; salt: string; cipher: stri
 type Tile = { big: string; what: string; note: string };
 type Filed = { label: string; date: string; state: string };
 type Phase = { n: string; phase: string; when: string; does: string };
-type Check = { n: string; title: string; need: string; unlocks: string; open: boolean; answer: string };
+type Check = {
+  n: string;
+  title: string;
+  need: string;
+  unlocks: string;
+  open: boolean;
+  answer: string;
+  in_form: boolean;
+};
+type Form = {
+  url: string;
+  button: string;
+  minutes: string;
+  note: string;
+  covers: string[];
+  covered: number;
+  total: number;
+  rest: string[];
+};
 type Step = { key: string; rail: string; title: string };
 type Layer = { layer: string; counts: string; readable: boolean; blocked: string };
 type Row = { what: string; when: string; has: string };
@@ -38,6 +56,7 @@ type Payload = {
   countdown: Phase[];
   example: string;
   checklist: Check[];
+  form: Form;
   steps: Step[];
   heads: { reporting: string; open: string };
   traction: Layer[];
@@ -203,7 +222,7 @@ function Page({ c, ticksKey }: { c: Payload; ticksKey: string }) {
       <div className="po-stage" ref={stageRef}>
         <section className="po-sec" data-step={key}>
           <div className="po-in">
-            <Head n={key} s={c.sections[key]} title={key === '05' ? `${c.sections['05'].title}: ${openItems} of ${c.checklist.length} still to do` : undefined} />
+            <Head n={key} s={c.sections[key]} title={key === '06' ? `${c.sections['06'].title}: ${openItems} of ${c.checklist.length} still to do` : undefined} />
 
             {key === '01' ? (
               <>
@@ -265,6 +284,29 @@ function Page({ c, ticksKey }: { c: Payload; ticksKey: string }) {
             ) : null}
 
             {key === '05' ? (
+              <div className="po-form">
+                <p className="po-form-line">
+                  It answers <strong>{c.form.covered} of the {c.form.total}</strong> things on your checklist, and
+                  it takes {c.form.minutes}.
+                </p>
+                <a className="po-cta" href={c.form.url} target="_blank" rel="noreferrer">
+                  {c.form.button}
+                </a>
+                <p className="po-note po-form-note">{c.form.note}</p>
+                <h3 className="po-subhead">What it asks you</h3>
+                <ul className="po-covers">
+                  {c.form.covers.map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+                <p className="po-quote">
+                  The {c.form.rest.length} it does not cover are {c.form.rest.join(' and ')}. Those two go
+                  straight to {c.contact.name}, and they are the last two on your checklist.
+                </p>
+              </div>
+            ) : null}
+
+            {key === '06' ? (
               <ul className="po-check">
                 {c.checklist.map((a) => {
                   const done = !a.open;
@@ -287,6 +329,9 @@ function Page({ c, ticksKey }: { c: Payload; ticksKey: string }) {
                         <p className="po-unlocks">
                           <span>Unlocks</span> {a.unlocks}
                         </p>
+                        <p className="po-where">
+                          {a.in_form ? 'The form on the step before asks this.' : `Not in the form: tell ${c.contact.name}.`}
+                        </p>
                         {done ? <p className="po-note">We have this: {a.answer}</p> : null}
                       </div>
                       <span className={done ? 'po-pill po-pill-gold' : 'po-pill'}>{done ? 'We have it' : 'To do'}</span>
@@ -296,7 +341,7 @@ function Page({ c, ticksKey }: { c: Payload; ticksKey: string }) {
               </ul>
             ) : null}
 
-            {key === '06' ? (
+            {key === '07' ? (
               <>
                 <ul className="po-layers">
                   {c.traction.map((t) => (

@@ -1,1 +1,1 @@
-{"v": 1, "kdf": "PBKDF2-SHA256", "rounds": 600000, "salt": "AUveHZFja7GDPFod+D0CQA==", "cipher": "AES-256-GCM"}
+{"v": 1, "kdf": "PBKDF2-SHA256", "rounds": 600000, "salt": "8l6dyDt7O96kNLkGQaAzlw==", "cipher": "AES-256-GCM"}

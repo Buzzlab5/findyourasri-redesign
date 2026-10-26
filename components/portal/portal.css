@@ -684,3 +684,69 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------------- the profile form step */
+.po-form-line {
+  margin: 0 0 22px;
+  font-size: 18px;
+  color: var(--po-ink-2);
+}
+.po-form-line strong {
+  color: var(--po-gold-2);
+  font-weight: 500;
+}
+.po-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 30px;
+  background: var(--po-gold);
+  border: 1px solid var(--po-gold);
+  color: #0c0a08;
+  font: 500 12px/1 var(--po-text);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.po-cta:hover {
+  background: var(--po-gold-2);
+  border-color: var(--po-gold-2);
+}
+.po-cta:focus-visible {
+  outline: 2px solid var(--po-gold-2);
+  outline-offset: 3px;
+}
+.po-form-note {
+  margin-top: 14px !important;
+  max-width: 60ch;
+}
+.po-covers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+.po-covers li {
+  border: 1px solid var(--po-hair);
+  border-left: 2px solid var(--po-line);
+  padding: 15px 17px;
+  font-size: 15px;
+  color: var(--po-ink-2);
+}
+.po-covers li::before {
+  content: '·';
+  color: var(--po-gold);
+  margin-right: 10px;
+}
+.po-where {
+  margin-top: 5px !important;
+  font-size: 13px !important;
+  letter-spacing: 0.04em;
+  color: var(--po-gold-deep) !important;
+}
+.po-check-done .po-where,
+.po-check-ticked .po-where {
+  color: var(--po-ink-3) !important;
+}
