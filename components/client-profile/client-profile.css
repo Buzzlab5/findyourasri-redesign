@@ -482,3 +482,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cp *, .cp *::before, .cp *::after { transition: none !important; }
 }
+
+/* The site's outline button has no fill of its own, so a <button> got the browser's pale grey: cream text on it vanished in the dark theme. */
+.cp .pill--outline { background: transparent; color: var(--a-ink); border-color: var(--a-line); }
+.cp .pill--outline:hover { background: var(--a-tint); border-color: var(--gold); color: var(--a-ink); }
+.cp .pill--outline:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

@@ -439,18 +439,18 @@ export default function AdminApp() {
 
   if (phase === 'loading') {
     return (
-      <div className="tone-cream ad">
-        <p className="ad__muted">Loading…</p>
+      <div className="tone-cream tm">
+        <p className="tm__muted">Loading…</p>
       </div>
     );
   }
 
   if (phase === 'out') {
     return (
-      <div className="tone-cream ad">
-        <form className="ad__login" onSubmit={onSignIn}>
-          <h1 className="ad__h1">Team sign in</h1>
-          <p className="ad__muted">Client profiles are private. Sign in with your Asri team account.</p>
+      <div className="tone-cream tm">
+        <form className="tm__login" onSubmit={onSignIn}>
+          <h1 className="tm__h1">Team sign in</h1>
+          <p className="tm__muted">Client profiles are private. Sign in with your Asri team account.</p>
           <label className="field">
             <span className="field__label">Email</span>
             <input name="email" type="email" autoComplete="username" required />
@@ -459,9 +459,9 @@ export default function AdminApp() {
             <label className="field__label" htmlFor="admin-password">
               Password
             </label>
-            <div className="ad-pw">
+            <div className="tm-pw">
               <input id="admin-password" name="password" type={showPw ? 'text' : 'password'} autoComplete="current-password" required />
-              <button type="button" className="ad-pw__eye" aria-label={showPw ? 'Hide password' : 'Show password'} aria-pressed={showPw} onClick={() => setShowPw((v) => !v)}>
+              <button type="button" className="tm-pw__eye" aria-label={showPw ? 'Hide password' : 'Show password'} aria-pressed={showPw} onClick={() => setShowPw((v) => !v)}>
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
                   <circle cx="12" cy="12" r="3" />
@@ -471,7 +471,7 @@ export default function AdminApp() {
             </div>
           </div>
           {message ? (
-            <p className="ad__error" role="alert">
+            <p className="tm__error" role="alert">
               {message}
             </p>
           ) : null}
@@ -484,8 +484,8 @@ export default function AdminApp() {
   }
 
   const top = (
-    <div className="ad__top">
-      <div className="ad-view" role="group" aria-label="Layout">
+    <div className="tm__top">
+      <div className="tm-view" role="group" aria-label="Layout">
           <button type="button" aria-pressed={layout === 'split'} onClick={() => chooseLayout('split')}>
             Split view
           </button>
@@ -493,8 +493,8 @@ export default function AdminApp() {
             List
           </button>
         </div>
-      <span className="ad__muted">{email}</span>
-      <button type="button" className="ad__link" onClick={() => signOut()}>
+      <span className="tm__muted">{email}</span>
+      <button type="button" className="tm__link" onClick={() => signOut()}>
         Sign out
       </button>
     </div>
@@ -508,15 +508,15 @@ export default function AdminApp() {
     );
 
   const head = (
-    <div className="ad__head">
+    <div className="tm__head">
       <div>
-        <h1 className="ad__h1">Client profiles</h1>
-        <span className="ad__muted">
+        <h1 className="tm__h1">Client profiles</h1>
+        <span className="tm__muted">
           {rows === null ? 'Loading…' : `${rows.length} ${rows.length === 1 ? 'profile' : 'profiles'}`}
         </span>
       </div>
-      <div className="ad-tools-top">
-        <button type="button" className="ad__link" onClick={() => loadList(true)} disabled={refreshing}>
+      <div className="tm-tools-top">
+        <button type="button" className="tm__link" onClick={() => loadList(true)} disabled={refreshing}>
           {refreshing ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
@@ -525,20 +525,20 @@ export default function AdminApp() {
 
   const listPane = (
     <>
-      <div className="ad-tools">
-        <label className="ad__search">
-          <span className="ad__sr">Search profiles</span>
+      <div className="tm-tools">
+        <label className="tm__search">
+          <span className="tm__sr">Search profiles</span>
           <input type="search" placeholder="Search by business, name or email" value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
       </div>
       {rows === null ? (
-        message ? null : <p className="ad__muted">Loading…</p>
+        message ? null : <p className="tm__muted">Loading…</p>
       ) : rows.length === 0 ? (
-        <p className="ad__empty">No profiles yet. They appear here as soon as a client sends the form.</p>
+        <p className="tm__empty">No profiles yet. They appear here as soon as a client sends the form.</p>
       ) : shown.length === 0 ? (
-        <p className="ad__empty">Nothing matches that.</p>
+        <p className="tm__empty">Nothing matches that.</p>
       ) : (
-        <div className={layout === 'split' ? 'ad-compact' : 'ad-rows'}>
+        <div className={layout === 'split' ? 'tm-compact' : 'tm-rows'}>
           {shown.map((r) => {
             const fresh = !seen.includes(r.id);
             const props = {
@@ -557,22 +557,22 @@ export default function AdminApp() {
 
   if (layout === 'split') {
     return (
-      <div className="tone-cream ad ad--wide">
+      <div className="tone-cream tm tm--wide">
         {top}
         {head}
-        {message ? <p className="ad__error" role="alert">{message}</p> : null}
-        <div className="ad-split" data-open={selected ? 'true' : 'false'}>
-          <div className="ad-split__list">{listPane}</div>
-          <div className="ad-split__detail">
+        {message ? <p className="tm__error" role="alert">{message}</p> : null}
+        <div className="tm-split" data-open={selected ? 'true' : 'false'}>
+          <div className="tm-split__list">{listPane}</div>
+          <div className="tm-split__detail">
             {selected ? (
               <>
-                <button type="button" className="ad__link ad-split__back" onClick={back}>
+                <button type="button" className="tm__link tm-split__back" onClick={back}>
                   All profiles
                 </button>
                 {detailEl}
               </>
             ) : (
-              <p className="ad__empty">Pick a client on the left to read their profile.</p>
+              <p className="tm__empty">Pick a client on the left to read their profile.</p>
             )}
           </div>
         </div>
@@ -582,22 +582,22 @@ export default function AdminApp() {
 
   if (selected) {
     return (
-      <div className="tone-cream ad">
+      <div className="tone-cream tm">
         {top}
-        <button type="button" className="ad__link ad__back" onClick={back}>
+        <button type="button" className="tm__link tm__back" onClick={back}>
           All profiles
         </button>
-        {message ? <p className="ad__error" role="alert">{message}</p> : null}
+        {message ? <p className="tm__error" role="alert">{message}</p> : null}
         {detailEl}
       </div>
     );
   }
 
   return (
-    <div className="tone-cream ad">
+    <div className="tone-cream tm">
       {top}
       {head}
-      {message ? <p className="ad__error" role="alert">{message}</p> : null}
+      {message ? <p className="tm__error" role="alert">{message}</p> : null}
       {listPane}
     </div>
   );
@@ -611,7 +611,7 @@ function TodoPill({ r }: { r: Row }) {
   // Until the function sends follow-ups with the list, say nothing rather than claim there is nothing to do.
   if (!r.followups) return null;
   const n = setupOf(r);
-  return <span className={`ad-todo${n ? '' : ' ad-todo--none'}`}>{n ? `${n} to set up` : 'Nothing to set up'}</span>;
+  return <span className={`tm-todo${n ? '' : ' tm-todo--none'}`}>{n ? `${n} to set up` : 'Nothing to set up'}</span>;
 }
 
 /** The full-width list row: who, what they want, files, what the team has to do, and how long ago. */
@@ -620,35 +620,35 @@ function RichRow({ r, fresh, onOpen, onHover }: RowProps) {
   return (
     <a
       href={`#${r.id}`}
-      className="ad-row"
+      className="tm-row"
       onClick={(e) => {
         e.preventDefault();
         onOpen();
       }}
       onPointerEnter={onHover}
     >
-      <span className="ad-mono" aria-hidden="true">
+      <span className="tm-mono" aria-hidden="true">
         {initials(r.business_name)}
       </span>
-      <span className="ad-row__who">
+      <span className="tm-row__who">
         <b>
           {r.business_name}
-          {fresh ? <i className="ad-dot" title="Not opened yet" /> : null}
+          {fresh ? <i className="tm-dot" title="Not opened yet" /> : null}
         </b>
         <small>{[sectorOf(r), r.country].filter(Boolean).join(' · ') || 'Sector not given'}</small>
       </span>
-      <span className="ad-row__who">
-        <b className="ad-row__plain">{r.contact_name}</b>
+      <span className="tm-row__who">
+        <b className="tm-row__plain">{r.contact_name}</b>
         <small>{r.contact_email}</small>
       </span>
-      <span className="ad-svc">
+      <span className="tm-svc">
         {r.services.slice(0, 2).map((x) => (
           <span key={x}>{x.split(' (')[0]}</span>
         ))}
         {r.services.length > 2 ? <span>+{r.services.length - 2}</span> : null}
       </span>
-      <span className="ad-row__files">{files ? `${files} file${files === 1 ? '' : 's'}` : 'No files'}</span>
-      <span className="ad-row__end">
+      <span className="tm-row__files">{files ? `${files} file${files === 1 ? '' : 's'}` : 'No files'}</span>
+      <span className="tm-row__end">
         <TodoPill r={r} />
         <small>{ago(r.submitted_at)}</small>
       </span>
@@ -662,7 +662,7 @@ function CompactRow({ r, fresh, selected, onOpen, onHover }: RowProps) {
   return (
     <a
       href={`#${r.id}`}
-      className={`ad-item${selected ? ' is-sel' : ''}`}
+      className={`tm-item${selected ? ' is-sel' : ''}`}
       aria-current={selected ? 'true' : undefined}
       onClick={(e) => {
         e.preventDefault();
@@ -671,12 +671,12 @@ function CompactRow({ r, fresh, selected, onOpen, onHover }: RowProps) {
       onPointerEnter={onHover}
     >
       <b>
-        {fresh ? <i className="ad-dot" title="Not opened yet" /> : null}
+        {fresh ? <i className="tm-dot" title="Not opened yet" /> : null}
         {r.business_name}
       </b>
       <small>
         {[sectorOf(r), ago(r.submitted_at)].filter(Boolean).join(' · ')}
-        {n ? <span className="ad-todo ad-todo--small">{n} to set up</span> : null}
+        {n ? <span className="tm-todo tm-todo--small">{n} to set up</span> : null}
       </small>
     </a>
   );
@@ -711,40 +711,40 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
   };
 
   return (
-    <article className="ad__detail">
-      <h1 className="ad__h1">{profile.business_name}</h1>
-      <p className="ad__muted">
+    <article className="tm__detail">
+      <h1 className="tm__h1">{profile.business_name}</h1>
+      <p className="tm__muted">
         Received {date(profile.submitted_at)} from {profile.contact_name}. Reference {ref(profile.id)}.
       </p>
-      <div className="ad-reach">
-        <a className="ad-reach__item" href={`mailto:${profile.contact_email}`}>
-          <span className="ad-reach__icon" aria-hidden="true">
+      <div className="tm-reach">
+        <a className="tm-reach__item" href={`mailto:${profile.contact_email}`}>
+          <span className="tm-reach__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="5" width="18" height="14" rx="1.5" />
               <path d="m3.5 6.5 8.5 6.5 8.5-6.5" />
             </svg>
           </span>
-          <span className="ad-reach__text">
+          <span className="tm-reach__text">
             <b>Send email</b>
             <small>{profile.contact_email}</small>
           </span>
         </a>
         {wa ? (
-          <a className="ad-reach__item" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer">
-            <span className="ad-reach__icon" aria-hidden="true">
+          <a className="tm-reach__item" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer">
+            <span className="tm-reach__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 20l1.3-4.2A8 8 0 1 1 8.4 19L4 20Z" />
                 <path d="M9.2 9.5c.3 2 2.6 4.2 5 4.8" />
               </svg>
             </span>
-            <span className="ad-reach__text">
+            <span className="tm-reach__text">
               <b>Message on WhatsApp</b>
               <small>{phone}</small>
             </span>
           </a>
         ) : null}
-        <button type="button" className="ad-reach__item ad-reach__item--quiet" onClick={onCopy}>
-          <span className="ad-reach__icon" aria-hidden="true">
+        <button type="button" className="tm-reach__item tm-reach__item--quiet" onClick={onCopy}>
+          <span className="tm-reach__icon" aria-hidden="true">
             {copied === 'Copied.' ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m5 12.5 4.5 4.5L19 7.5" />
@@ -756,57 +756,57 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
               </svg>
             )}
           </span>
-          <span className="ad-reach__text" role="status">
+          <span className="tm-reach__text" role="status">
             <b>{copied === 'Copied.' ? 'Copied' : copied ? 'Could not copy' : 'Copy all answers'}</b>
             <small>{copied === 'Copied.' ? 'Ready to paste' : copied ? 'Your browser blocked it' : 'As plain text'}</small>
           </span>
         </button>
       </div>
 
-      <nav className="ad-jump" aria-label="Jump to a section">
-        <button type="button" onClick={() => jump('ad-overview')}>
+      <nav className="tm-jump" aria-label="Jump to a section">
+        <button type="button" onClick={() => jump('tm-overview')}>
           Overview
         </button>
         {secs.map(({ s }) => (
-          <button key={s.id} type="button" onClick={() => jump(`ad-${s.id}`)}>
+          <button key={s.id} type="button" onClick={() => jump(`tm-${s.id}`)}>
             {s.title}
           </button>
         ))}
-        <button type="button" onClick={() => jump('ad-files')}>
+        <button type="button" onClick={() => jump('tm-files')}>
           All files
         </button>
       </nav>
 
-      <section id="ad-overview" className="ad-over">
-        <div className="ad-facts">
-          <div className="ad-fact">
+      <section id="tm-overview" className="tm-over">
+        <div className="tm-facts">
+          <div className="tm-fact">
             <small>Business</small>
             <b>{sector || 'Sector not given'}</b>
             <span>{[text('stage'), where].filter(Boolean).join(' · ') || 'No more detail'}</span>
           </div>
-          <div className="ad-fact">
+          <div className="tm-fact">
             <small>Wants</small>
             <b>{wants.length ? `${wants.slice(0, 3).join(', ')}${wants.length > 3 ? `, +${wants.length - 3} more` : ''}` : 'Not given'}</b>
             <span>{text('budget') ? `Budget: ${text('budget')}` : 'No budget given'}</span>
           </div>
-          <div className="ad-fact">
+          <div className="tm-fact">
             <small>Contact</small>
             <b>{[profile.contact_name, text('contact_role')].filter(Boolean).join(', ')}</b>
             <span>{[profile.contact_email, phone].filter(Boolean).join(' · ')}</span>
           </div>
-          <div className="ad-fact">
+          <div className="tm-fact">
             <small>Brand colours</small>
             {colours.length ? <Swatches value={colours.join(', ')} /> : <b>None given</b>}
           </div>
         </div>
 
         {profile.followups?.length ? (
-          <div className="ad-todo-list">
-            <h2 className="ad__h2">Team follow-ups</h2>
-            <ul className="ad__todo">
+          <div className="tm-todo-list">
+            <h2 className="tm__h2">Team follow-ups</h2>
+            <ul className="tm__todo">
               {profile.followups.map((f, i) => (
                 <li key={i}>
-                  <span className={`ad__tag ad__tag--${f.kind}`}>{KIND[f.kind] ?? 'Note'}</span>
+                  <span className={`tm__tag tm__tag--${f.kind}`}>{KIND[f.kind] ?? 'Note'}</span>
                   <span>{f.text}</span>
                 </li>
               ))}
@@ -816,12 +816,12 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
       </section>
 
       {secs.map(({ s, rows }) => (
-        <details className="ad-sec" id={`ad-${s.id}`} key={s.id} open>
+        <details className="tm-sec" id={`tm-${s.id}`} key={s.id} open>
           <summary>
-            <h2 className="ad__h2">{s.title}</h2>
-            <span className="ad__muted">{rows.length} answer{rows.length === 1 ? '' : 's'}</span>
+            <h2 className="tm__h2">{s.title}</h2>
+            <span className="tm__muted">{rows.length} answer{rows.length === 1 ? '' : 's'}</span>
           </summary>
-          <dl className="ad__qa">
+          <dl className="tm__qa">
             {rows.map((f) => (
               <div key={f.id}>
                 <dt>{f.label}</dt>
@@ -841,11 +841,11 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
       ))}
 
       {extra.length ? (
-        <details className="ad-sec" open>
+        <details className="tm-sec" open>
           <summary>
-            <h2 className="ad__h2">Other answers</h2>
+            <h2 className="tm__h2">Other answers</h2>
           </summary>
-          <dl className="ad__qa">
+          <dl className="tm__qa">
             {extra.map(([k, v]) => (
               <div key={k}>
                 <dt>{k}</dt>
@@ -858,26 +858,26 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
         </details>
       ) : null}
 
-      <details className="ad-sec" id="ad-files" open>
+      <details className="tm-sec" id="tm-files" open>
         <summary>
-          <h2 className="ad__h2">All files</h2>
-          <span className="ad__muted">{files.length} file{files.length === 1 ? '' : 's'}</span>
+          <h2 className="tm__h2">All files</h2>
+          <span className="tm__muted">{files.length} file{files.length === 1 ? '' : 's'}</span>
         </summary>
         {files.length === 0 ? (
-          <p className="ad__muted">No files were uploaded. Any links the client pasted are in the answers above.</p>
+          <p className="tm__muted">No files were uploaded. Any links the client pasted are in the answers above.</p>
         ) : (
           categories.map((c) => (
-            <div key={c} className="ad__cat">
-              <h3 className="ad__h3">{c}</h3>
+            <div key={c} className="tm__cat">
+              <h3 className="tm__h3">{c}</h3>
               <FileItems files={files.filter((f) => f.category === c)} />
             </div>
           ))
         )}
-        {files.length ? <p className="ad__muted ad__note">File links open for one hour. Reload the page for fresh ones.</p> : null}
+        {files.length ? <p className="tm__muted tm__note">File links open for one hour. Reload the page for fresh ones.</p> : null}
       </details>
 
       {Object.keys(profile.source ?? {}).length ? (
-        <p className="ad__muted ad__note">Came from {Object.entries(profile.source).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(', ')}.</p>
+        <p className="tm__muted tm__note">Came from {Object.entries(profile.source).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(', ')}.</p>
       ) : null}
     </article>
   );
@@ -886,14 +886,14 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
 /** What is already known about a profile while the rest of it loads. */
 function Opening({ row }: { row?: Row }) {
   return (
-    <article className="ad__detail">
-      <h1 className="ad__h1">{row?.business_name ?? 'Loading…'}</h1>
+    <article className="tm__detail">
+      <h1 className="tm__h1">{row?.business_name ?? 'Loading…'}</h1>
       {row ? (
-        <p className="ad__muted">
+        <p className="tm__muted">
           Received {date(row.submitted_at)} from {row.contact_name}. Reference {ref(row.id)}.
         </p>
       ) : null}
-      <p className="ad__muted ad__note" role="status">
+      <p className="tm__muted tm__note" role="status">
         Loading the answers and files…
       </p>
     </article>
@@ -903,14 +903,14 @@ function Opening({ row }: { row?: Row }) {
 /** Files as thumbnails (images) or plain names, each linking to the file. */
 function FileItems({ files }: { files: FileRow[] }) {
   return (
-    <ul className="ad__files">
+    <ul className="tm__files">
       {files.map((f) => (
         <li key={f.path}>
           {f.url && isImage(f.name) ? (
             <img
               src={f.thumb ?? f.url}
               alt=""
-              className="ad__thumb"
+              className="tm__thumb"
               loading="lazy"
               decoding="async"
               onError={(e) => {
@@ -919,9 +919,9 @@ function FileItems({ files }: { files: FileRow[] }) {
               }}
             />
           ) : (
-            <span className="ad__thumb ad__thumb--blank" aria-hidden="true" />
+            <span className="tm__thumb tm__thumb--blank" aria-hidden="true" />
           )}
-          <span className="ad__fname">
+          <span className="tm__fname">
             {f.url ? (
               <a href={f.url} target="_blank" rel="noopener noreferrer">
                 {f.name}
@@ -929,7 +929,7 @@ function FileItems({ files }: { files: FileRow[] }) {
             ) : (
               f.name
             )}
-            <span className="ad__sub">{megabytes(f.size)}</span>
+            <span className="tm__sub">{megabytes(f.size)}</span>
           </span>
         </li>
       ))}
@@ -941,7 +941,7 @@ function FileItems({ files }: { files: FileRow[] }) {
 function Text({ value }: { value: string }) {
   const parts = value.split(/(https?:\/\/[^\s]*[^\s.,;:!?)])/g);
   return (
-    <span className="ad__text">
+    <span className="tm__text">
       {parts.map((p, i) =>
         /^https?:\/\//.test(p) ? (
           <a key={i} href={p} target="_blank" rel="noopener noreferrer">
@@ -959,9 +959,9 @@ function Swatches({ value }: { value: string }) {
   const colors = value.split(/[,\s]+/).filter((c) => /^#[0-9a-f]{6}$/i.test(c));
   if (!colors.length) return <Text value={value} />;
   return (
-    <span className="ad__swatches">
+    <span className="tm__swatches">
       {colors.map((c) => (
-        <span className="ad__sw" key={c}>
+        <span className="tm__sw" key={c}>
           <s style={{ background: c }} />
           {c}
         </span>
