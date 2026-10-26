@@ -13,6 +13,7 @@
  * Admin only (Authorization: Bearer <access token of a signed-in admin>):
  *   admin-list  { action } -> { profiles }
  *   admin-get   { action, id } -> { profile, files }   (files carry a download link for an hour)
+ *   admin-delete { action, id, expect } -> { ok, files }   (removes the profile, its rows and every file in its folder)
  *
  * Deploy without JWT verification, because the client's browser sends no key:
  *   supabase functions deploy client-profile --no-verify-jwt
@@ -402,6 +403,38 @@ async function adminGet(req: Request, body: Record<string, unknown>) {
   });
 }
 
+/**
+ * Deletes one profile completely: every object in its storage folder (not only the ones listed in
+ * client_files, so stray uploads go too), then the profile row, whose client_files rows follow by cascade.
+ * Files go first: if that fails the profile is still there and the delete can simply be tried again.
+ * `expect` must be the business name the admin was looking at, so a stale page cannot delete another record.
+ */
+async function adminDelete(req: Request, body: Record<string, unknown>) {
+  await requireAdmin(req);
+  const id = str(body.id, 40);
+  if (!UUID.test(id)) throw new Fail(400, 'bad_id');
+  const { data: profile, error } = await db.from('client_profiles').select('id,business_name').eq('id', id).maybeSingle();
+  if (error) throw error;
+  if (!profile) throw new Fail(404, 'not_found');
+  if (str(body.expect, 300) !== profile.business_name) throw new Fail(409, 'name_changed');
+
+  const paths: string[] = [];
+  for (let offset = 0; ; offset += 100) {
+    const { data, error: listError } = await db.storage.from(BUCKET).list(id, { limit: 100, offset });
+    if (listError) throw listError;
+    for (const o of data ?? []) paths.push(`${id}/${o.name}`);
+    if ((data?.length ?? 0) < 100) break;
+  }
+  if (paths.length) {
+    const { error: removeError } = await db.storage.from(BUCKET).remove(paths);
+    if (removeError) throw removeError;
+  }
+  const { error: deleteError } = await db.from('client_profiles').delete().eq('id', id);
+  if (deleteError) throw deleteError;
+  console.log('admin-delete', id, 'files removed:', paths.length);
+  return json(req, 200, { ok: true, files: paths.length });
+}
+
 /* ------------------------------------------------------------------- handler */
 
 Deno.serve(async (req) => {
@@ -437,6 +470,7 @@ Deno.serve(async (req) => {
     }
     if (body.action === 'admin-list') return await adminList(req);
     if (body.action === 'admin-get') return await adminGet(req, body);
+    if (body.action === 'admin-delete') return await adminDelete(req, body);
     throw new Fail(400, 'bad_action');
   } catch (e) {
     if (e instanceof Fail) return json(req, e.status, { error: e.code });

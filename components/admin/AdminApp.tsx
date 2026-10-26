@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 
 import {
@@ -494,6 +495,9 @@ export default function AdminApp() {
           </button>
         </div>
       <span className="tm__muted">{email}</span>
+      <Link href="/admin/manage/" className="tm__link">
+        Manage
+      </Link>
       <button type="button" className="tm__link" onClick={() => signOut()}>
         Sign out
       </button>

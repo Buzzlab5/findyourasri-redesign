@@ -117,13 +117,28 @@ dihitung dari follow-up tim di tiap profile.
 Setiap kali kode function berubah (misalnya menambah data untuk daftar), paste ulang
 `index.ts` dan Deploy lagi.
 
+### Menghapus profile (`/admin/manage/`)
+
+Klik **Manage** di bilah atas halaman admin. Halaman itu memuat semua profile dengan
+kotak centang dan tombol **Delete...** per baris. Pilih satu atau beberapa, baca
+daftar yang akan hilang, lalu ketik `DELETE` untuk mengonfirmasi.
+
+Yang terhapus dalam satu langkah: jawaban, baris file di database, dan **semua file
+di folder profile itu di Storage**. Urutannya: file dulu, baru data. Kalau
+penghapusan file gagal, datanya masih ada dan bisa diulang. Halaman ini memakai
+login dari halaman admin, jadi masuk dulu di `/admin/`. Perlu paste ulang `index.ts`
+dan Deploy supaya fungsi hapusnya aktif.
+
+Yang tidak dihapus halaman ini: file yang di-upload tapi formnya tidak pernah dikirim.
+Itu tidak punya profile, jadi tidak muncul di daftar. Bersihkan lewat Storage di
+dashboard.
+
 ### Yang perlu diketahui
 
 - Link file yang dibuka dari halaman admin berlaku **1 jam**. Muat ulang
   halaman untuk link baru.
-- Halaman admin hanya **membaca**. Untuk menghapus profile (misalnya data uji),
-  pakai **Table Editor** di Supabase (baris di `client_files` ikut terhapus
-  otomatis) dan **Storage** untuk filenya.
+- Halaman `/admin/` hanya membaca. Untuk menghapus profile, pakai `/admin/manage/`
+  (lihat di atas).
 - Kalau alamat site yang dipakai bukan findyourasri.com, daftarkan juga di
   `ALLOWED_ORIGINS` (lihat tabel di bawah).
 - Untuk menerusi hasilnya ke Slack: isi `NOTIFY_WEBHOOK_URL` dan `ADMIN_URL`
