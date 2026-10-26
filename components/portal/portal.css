@@ -121,16 +121,15 @@
   color: var(--po-ink-3);
   margin-right: 14px;
 }
-.po-cover {
-  padding: clamp(56px, 10vw, 108px) 0 clamp(36px, 6vw, 64px);
+.po-top {
+  padding: clamp(36px, 6vw, 64px) 0 0;
   background:
     radial-gradient(90% 70% at 15% 0%, rgba(201, 160, 99, 0.1) 0%, rgba(201, 160, 99, 0) 60%),
     var(--po-ground);
-  border-bottom: 1px solid var(--po-line);
 }
 .po-title {
-  margin: 0 0 20px;
-  font: 400 clamp(44px, 10vw, 92px) / 0.98 var(--po-display);
+  margin: 0 0 18px;
+  font: 400 clamp(40px, 8vw, 74px) / 0.98 var(--po-display);
   letter-spacing: 0.01em;
 }
 .po-lede {
@@ -138,6 +137,9 @@
   max-width: 54ch;
   font-size: clamp(17px, 2.1vw, 20px);
   color: var(--po-ink-2);
+}
+.po-lede-step {
+  margin: 0 0 26px;
 }
 .po-stamp {
   display: flex;
@@ -470,5 +472,215 @@
   .po-layers li {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+}
+
+
+/* ------------------------------------------------------------- the step rail */
+.po-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin: 28px 0 0;
+  background: var(--po-hair);
+  border: 1px solid var(--po-hair);
+}
+.po-rail button {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 14px;
+  border: 0;
+  background: var(--po-ground);
+  color: var(--po-ink-3);
+  font: 500 11px/1.2 var(--po-text);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.po-rail button:hover {
+  color: var(--po-ink-2);
+}
+.po-rail-n {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+  letter-spacing: 0;
+  flex: 0 0 auto;
+}
+.po-rail .po-rail-done {
+  color: var(--po-gold-deep);
+}
+.po-rail .po-rail-on {
+  background: var(--po-panel);
+  color: var(--po-gold-2);
+}
+.po-rail button:focus-visible {
+  outline: 2px solid var(--po-gold-2);
+  outline-offset: -2px;
+}
+
+/* one step at a time */
+.po-stage {
+  border-top: 1px solid var(--po-line);
+  margin-top: 28px;
+}
+.po-stage .po-sec {
+  border-bottom: 0;
+  min-height: 46vh;
+}
+.po-subhead {
+  margin: clamp(34px, 4vw, 48px) 0 16px !important;
+  font: 500 12px/1.4 var(--po-text) !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase;
+  color: var(--po-gold) !important;
+}
+
+/* back and next */
+.po-nav {
+  border-top: 1px solid var(--po-hair);
+  background: var(--po-panel);
+  padding: 18px 0;
+}
+.po-nav .po-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.po-nav button {
+  padding: 13px 20px;
+  border: 1px solid var(--po-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--po-ink);
+  font: 500 11px/1 var(--po-text);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.po-nav .po-next {
+  background: var(--po-gold);
+  border-color: var(--po-gold);
+  color: #0c0a08;
+}
+.po-nav button:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+.po-nav button:focus-visible {
+  outline: 2px solid var(--po-gold-2);
+  outline-offset: 2px;
+}
+.po-count {
+  font: 500 11px/1 var(--po-text);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--po-ink-3);
+}
+
+/* the client's checklist */
+.po-check {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--po-hair);
+}
+.po-check li {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 18px;
+  align-items: start;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--po-hair);
+}
+.po-box {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--po-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--po-gold);
+  font: 500 13px/1 var(--po-text);
+  cursor: pointer;
+}
+.po-box:disabled {
+  cursor: default;
+  background: var(--po-gold);
+  border-color: var(--po-gold);
+  color: #0c0a08;
+}
+.po-box:focus-visible {
+  outline: 2px solid var(--po-gold-2);
+  outline-offset: 2px;
+}
+.po-check p {
+  margin: 0;
+  color: var(--po-ink-2);
+  font-size: 16px;
+}
+.po-unlocks {
+  margin-top: 7px !important;
+  font-size: 14px !important;
+  color: var(--po-ink-3) !important;
+}
+.po-unlocks span {
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: var(--po-gold);
+  margin-right: 8px;
+}
+.po-check-ticked .po-box {
+  background: rgba(201, 160, 99, 0.18);
+}
+.po-check-ticked h3,
+.po-check-done h3 {
+  color: var(--po-ink-3);
+}
+.po-check-ticked p,
+.po-check-done p {
+  color: var(--po-ink-3) !important;
+}
+
+@media (max-width: 620px) {
+  .po-rail button {
+    flex: 1 1 42%;
+    font-size: 10px;
+    padding: 11px 10px;
+  }
+  .po-check li {
+    grid-template-columns: 32px 1fr;
+  }
+  .po-check li .po-pill {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .po-nav .po-in {
+    flex-wrap: wrap;
+  }
+  .po-count {
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* printing or saving as PDF shows the whole page, because a stepper on paper is one page of six */
+@media print {
+  .po-rail,
+  .po-nav {
+    display: none;
   }
 }
