@@ -483,17 +483,3 @@ export function answersAsText(get: Getter, kit: { name: string; category: string
   }
   return lines.join('\n');
 }
-
-/* ---------- readable copy for the team's Google Doc ---------- */
-
-export type SummarySection = { title: string; rows: { label: string; value: string }[] };
-
-/** Section titles, question labels and answers as plain strings. The server turns this into the Doc. */
-export function summarize(get: Getter): SummarySection[] {
-  return sections.flatMap((s) => {
-    const rows = s.fields
-      .filter((f) => f.type !== 'file' && isVisible(f, get) && hasValue(get(f.id)))
-      .map((f) => ({ label: f.label, value: formatAnswer(f, get(f.id)) }));
-    return rows.length ? [{ title: s.title, rows }] : [];
-  });
-}

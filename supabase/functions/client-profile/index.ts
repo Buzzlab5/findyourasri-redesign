@@ -1,33 +1,34 @@
 /**
- * The back end of /client-profile/. The site is a static export, so the form
- * has no server of its own: it calls this function, which is the only thing
- * that touches the client_* tables and the client-brand-assets bucket.
+ * The back end of /client-profile/ and /admin/. The site is a static export, so
+ * it has no server of its own: the form and the admin page call this function,
+ * which is the only thing that touches the client_* tables and the
+ * client-brand-assets bucket.
  *
- * Two actions, both POST with a JSON body:
+ * Actions, all POST with a JSON body. Public (the client's form):
  *   upload-url  { action, draftId, name, size }
  *               -> { path, signedUrl, apikey }   (the browser PUTs the file there)
  *   submit      { action, draftId, answers, followups, files, source, website, turnstile }
  *               -> { ok: true, ref }
+ *   config      { action } -> { url, anonKey }   (what the admin page needs to sign in)
+ * Admin only (Authorization: Bearer <access token of a signed-in admin>):
+ *   admin-list  { action } -> { profiles }
+ *   admin-get   { action, id } -> { profile, files }   (files carry a download link for an hour)
  *
- * Deploy without JWT verification, because the browser sends no key:
+ * Deploy without JWT verification, because the client's browser sends no key:
  *   supabase functions deploy client-profile --no-verify-jwt
- * Abuse is handled here instead: origin allow-list, per-IP rate limits, a
- * honeypot, an extension allow-list, a size cap, and Cloudflare Turnstile when
- * TURNSTILE_SECRET_KEY is set.
+ * The admin actions check the token themselves and then the ADMIN_EMAILS list.
+ * Abuse of the public actions is handled here: origin allow-list, per-IP rate
+ * limits, a honeypot, an extension allow-list, a size cap, and Cloudflare
+ * Turnstile when TURNSTILE_SECRET_KEY is set.
  *
- * Secrets (supabase secrets set ...), all optional:
+ * Secrets (Edge Functions > Secrets, or supabase secrets set ...):
+ *   ADMIN_EMAILS          comma-separated emails allowed into /admin/. Empty means nobody.
  *   ALLOWED_ORIGINS       comma-separated; defaults to the live site and localhost
- *   TURNSTILE_SECRET_KEY  turns on the Turnstile check on submit
- *   NOTIFY_WEBHOOK_URL    Slack-compatible incoming webhook, posted to when a profile arrives
- *   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GOOGLE_DRIVE_FOLDER_ID
- *                         together turn on the Google sync: each submitted profile gets a
- *                         folder in that Drive folder, with a Google Doc of the answers and
- *                         a copy of the uploaded files. All four, or none.
+ *   TURNSTILE_SECRET_KEY  optional: turns on the Turnstile check on submit
+ *   NOTIFY_WEBHOOK_URL    optional: Slack-compatible incoming webhook, posted to when a profile arrives
+ *   ADMIN_URL             optional: the /admin/ address, added to that message as a link
  */
 import { createClient } from 'npm:@supabase/supabase-js@2';
-
-// Supabase's edge runtime keeps a request's background work alive after the response is sent.
-declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void };
 
 const BUCKET = 'client-brand-assets';
 const MAX_FILE_BYTES = 50 * 1024 * 1024; // keep in step with the bucket limit
@@ -193,24 +194,6 @@ function cleanFollowups(raw: unknown) {
   });
 }
 
-/** The readable copy of the answers the browser builds (labels and values), as plain strings only. */
-function cleanSummary(raw: unknown) {
-  if (!Array.isArray(raw)) return [];
-  return raw.slice(0, 30).flatMap((section) => {
-    const s = section as Record<string, unknown>;
-    const title = str(s?.title, 120);
-    const rows = Array.isArray(s?.rows)
-      ? (s.rows as unknown[]).slice(0, 80).flatMap((row) => {
-          const r = row as Record<string, unknown>;
-          const label = str(r?.label, 300);
-          const value = str(r?.value, 5000);
-          return label && value ? [{ label, value }] : [];
-        })
-      : [];
-    return title && rows.length ? [{ title, rows }] : [];
-  });
-}
-
 async function verifyTurnstile(token: string, ip: string) {
   const secret = Deno.env.get('TURNSTILE_SECRET_KEY');
   if (!secret) return;
@@ -285,7 +268,6 @@ async function submit(req: Request, body: Record<string, unknown>, ipHash: strin
     budget: str(answers.budget, 100) || null,
     answers,
     followups: cleanFollowups(body.followups),
-    summary: cleanSummary(body.summary),
     consent: true,
     source,
   });
@@ -299,20 +281,17 @@ async function submit(req: Request, body: Record<string, unknown>, ipHash: strin
     }
   }
 
-  // The response does not wait for Google. With the sync on, the team is told once the Doc exists.
-  const after = googleOn()
-    ? syncToGoogle(draftId)
-    : notify(businessName, contactName, contactEmail, fileRows.length);
-  EdgeRuntime.waitUntil(after.catch((e) => console.error('after-submit work failed', e)));
+  await notify(draftId, businessName, contactName, contactEmail, fileRows.length).catch((e) => console.error('notify failed', e));
   return json(req, 200, { ok: true, ref: refFor(draftId) });
 }
 
 const refFor = (id: string) => `ASRI-${id.slice(0, 8).toUpperCase()}`;
 
-async function notify(business: string, contact: string, email: string, files: number, docUrl?: string | null) {
+async function notify(id: string, business: string, contact: string, email: string, files: number) {
   const url = Deno.env.get('NOTIFY_WEBHOOK_URL');
   if (!url) return;
-  const link = docUrl ? ` ${docUrl}` : '';
+  const admin = Deno.env.get('ADMIN_URL');
+  const link = admin ? ` ${admin.replace(/\/+$/, '')}/#${id}` : '';
   await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -322,168 +301,52 @@ async function notify(business: string, contact: string, email: string, files: n
   });
 }
 
-/* -------------------------------------------------------------- google sync */
+/* --------------------------------------------------------------------- admin */
 
-const G = {
-  clientId: Deno.env.get('GOOGLE_CLIENT_ID') ?? '',
-  clientSecret: Deno.env.get('GOOGLE_CLIENT_SECRET') ?? '',
-  refreshToken: Deno.env.get('GOOGLE_REFRESH_TOKEN') ?? '',
-  parent: Deno.env.get('GOOGLE_DRIVE_FOLDER_ID') ?? '',
-};
-const googleOn = () => Boolean(G.clientId && G.clientSecret && G.refreshToken && G.parent);
+const ADMINS = (Deno.env.get('ADMIN_EMAILS') ?? '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
-const DRIVE = 'https://www.googleapis.com/drive/v3';
-const UPLOAD = 'https://www.googleapis.com/upload/drive/v3';
-
-type DriveItem = { id: string; webViewLink: string };
-
-async function googleJson(res: Response, what: string) {
-  const text = await res.text();
-  if (!res.ok) throw new Error(`${what}: ${res.status} ${text.slice(0, 300)}`);
-  return JSON.parse(text);
+/** Who is calling: the signed-in person behind the token, and only if they are on the admin list. */
+async function requireAdmin(req: Request) {
+  const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) throw new Fail(401, 'sign_in');
+  if (!ADMINS.length) throw new Fail(403, 'admin_not_configured');
+  const { data, error } = await db.auth.getUser(token);
+  const email = data?.user?.email?.toLowerCase();
+  if (error || !email) throw new Fail(401, 'sign_in');
+  if (!ADMINS.includes(email)) throw new Fail(403, 'not_admin');
+  return email;
 }
 
-async function googleToken() {
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      client_id: G.clientId,
-      client_secret: G.clientSecret,
-      refresh_token: G.refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  });
-  const data = await googleJson(res, 'google sign-in');
-  if (!data.access_token) throw new Error('google sign-in: no access token');
-  return data.access_token as string;
+async function adminList(req: Request) {
+  await requireAdmin(req);
+  const { data, error } = await db
+    .from('client_profiles')
+    .select('id,business_name,contact_name,contact_email,country,sector,services,budget,status,submitted_at,client_files(count)')
+    .order('submitted_at', { ascending: false })
+    .limit(500);
+  if (error) throw error;
+  return json(req, 200, { profiles: data });
 }
 
-async function createFolder(token: string, name: string, parent: string): Promise<DriveItem> {
-  const res = await fetch(`${DRIVE}/files?fields=id,webViewLink&supportsAllDrives=true`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parent] }),
-  });
-  return googleJson(res, 'create folder');
-}
-
-/** Copies one stored file into a Drive folder. Files are at most 50 MB and go one at a time, so each is held in memory briefly. */
-async function copyToDrive(token: string, file: { path: string; name: string }, folderId: string): Promise<DriveItem> {
-  const { data, error } = await db.storage.from(BUCKET).createSignedUrl(file.path, 600);
-  if (error || !data) throw error ?? new Error('no download url');
-  const source = await fetch(data.signedUrl);
-  if (!source.ok) throw new Error(`read ${file.name}: ${source.status}`);
-  const bytes = await source.arrayBuffer();
-
-  const start = await fetch(`${UPLOAD}/files?uploadType=resumable&fields=id,webViewLink&supportsAllDrives=true`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json; charset=UTF-8',
-      'X-Upload-Content-Length': String(bytes.byteLength),
-    },
-    body: JSON.stringify({ name: file.name, parents: [folderId] }),
-  });
-  if (!start.ok) throw new Error(`start upload ${file.name}: ${start.status} ${(await start.text()).slice(0, 200)}`);
-  const session = start.headers.get('location');
-  if (!session) throw new Error(`start upload ${file.name}: no upload address`);
-  const put = await fetch(session, { method: 'PUT', body: bytes });
-  return googleJson(put, `upload ${file.name}`);
-}
-
-/** Drive turns HTML into a formatted Google Doc when asked for the Docs type. */
-async function createDoc(token: string, name: string, html: string, folderId: string): Promise<DriveItem> {
-  const boundary = `asri-${crypto.randomUUID()}`;
-  const meta = { name, mimeType: 'application/vnd.google-apps.document', parents: [folderId] };
-  const body =
-    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n` +
-    `--${boundary}\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n${html}\r\n--${boundary}--`;
-  const res = await fetch(`${UPLOAD}/files?uploadType=multipart&fields=id,webViewLink&supportsAllDrives=true`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary=${boundary}` },
-    body,
-  });
-  return googleJson(res, 'create doc');
-}
-
-const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const cell = (t: string) =>
-  esc(t)
-    .replace(/(https?:\/\/[^\s<]*[^\s<.,;:!?)])/g, (u) => `<a href="${u}">${u}</a>`)
-    .replace(/\n/g, '<br>');
-
-type Row = { label: string; value: string };
-type SummarySection = { title: string; rows: Row[] };
-
-function profileHtml(
-  p: { id: string; business_name: string; contact_name: string; contact_email: string; submitted_at: string },
-  followups: { kind: string; text: string }[],
-  sections: SummarySection[],
-  files: { name: string; category: string; link: string }[],
-) {
-  const tag = (kind: string) => (kind === 'setup' ? 'Set up' : kind === 'check' ? 'Check' : 'Note');
-  const table = (rows: Row[]) =>
-    `<table border="1" cellpadding="6" cellspacing="0">${rows
-      .map((r) => `<tr><td width="30%"><b>${esc(r.label)}</b></td><td>${cell(r.value)}</td></tr>`)
-      .join('')}</table>`;
-  return [
-    '<html><body>',
-    `<h1>Client profile: ${esc(p.business_name)}</h1>`,
-    `<p>Received ${esc(p.submitted_at.slice(0, 10))} from ${esc(p.contact_name)} (${esc(p.contact_email)}). Reference ${esc(refFor(p.id))}.</p>`,
-    followups.length
-      ? `<h2>Team follow-ups</h2><ul>${followups.map((f) => `<li><b>${tag(f.kind)}.</b> ${esc(f.text)}</li>`).join('')}</ul>`
-      : '',
-    ...sections.map((s) => `<h2>${esc(s.title)}</h2>${table(s.rows)}`),
-    files.length
-      ? `<h2>Files</h2><ul>${files.map((f) => `<li><a href="${esc(f.link)}">${esc(f.name)}</a> (${esc(f.category)})</li>`).join('')}</ul>`
-      : '',
-    '</body></html>',
-  ].join('');
-}
-
-/**
- * Builds the client's Drive folder: the files sorted into one subfolder per
- * category, and a Google Doc of the answers linking to them. Never throws:
- * a failure is written to the profile row for the team to see.
- */
-async function syncToGoogle(id: string) {
-  const { data: p, error } = await db.from('client_profiles').select('*').eq('id', id).single();
-  if (error || !p) throw error ?? new Error('profile not found');
-  const { data: fileRows } = await db.from('client_files').select('*').eq('profile_id', id);
-  const files = (fileRows ?? []) as { path: string; name: string; category: string }[];
-
-  try {
-    const token = await googleToken();
-    const folder = await createFolder(token, `${p.business_name} (${String(p.submitted_at).slice(0, 10)})`, G.parent);
-
-    const subfolders = new Map<string, string>();
-    const copied: { name: string; category: string; link: string }[] = [];
-    for (const f of files) {
-      let sub = subfolders.get(f.category);
-      if (!sub) {
-        sub = (await createFolder(token, f.category, folder.id)).id;
-        subfolders.set(f.category, sub);
-      }
-      const item = await copyToDrive(token, f, sub);
-      copied.push({ name: f.name, category: f.category, link: item.webViewLink });
-    }
-
-    // Older form builds sent no summary: fall back to the raw answers so the Doc is never empty.
-    const summary: SummarySection[] = p.summary?.length
-      ? p.summary
-      : [{ title: 'Answers', rows: Object.entries(p.answers as Record<string, unknown>).map(([label, value]) => ({ label, value: String(value) })) }];
-    const doc = await createDoc(token, `Client profile: ${p.business_name}`, profileHtml(p, p.followups ?? [], summary, copied), folder.id);
-
-    await db
-      .from('client_profiles')
-      .update({ status: 'synced', google_doc_url: doc.webViewLink, drive_folder_url: folder.webViewLink, synced_at: new Date().toISOString(), sync_error: null })
-      .eq('id', id);
-    await notify(p.business_name, p.contact_name, p.contact_email, files.length, doc.webViewLink);
-  } catch (e) {
-    console.error('google sync failed', e);
-    await db.from('client_profiles').update({ status: 'sync_failed', sync_error: String(e).slice(0, 500) }).eq('id', id);
-    await notify(p.business_name, p.contact_name, p.contact_email, files.length);
-  }
+async function adminGet(req: Request, body: Record<string, unknown>) {
+  await requireAdmin(req);
+  const id = str(body.id, 40);
+  if (!UUID.test(id)) throw new Fail(400, 'bad_id');
+  const { data: profile, error } = await db.from('client_profiles').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  if (!profile) throw new Fail(404, 'not_found');
+  const { data: fileRows } = await db
+    .from('client_files')
+    .select('path,name,size,category,created_at')
+    .eq('profile_id', id)
+    .order('created_at');
+  const files = (fileRows ?? []) as { path: string; name: string; size: number; category: string; created_at: string }[];
+  const urls = files.length ? (await db.storage.from(BUCKET).createSignedUrls(files.map((f) => f.path), 3600)).data ?? [] : [];
+  const byPath = new Map(urls.map((u: { path: string; signedUrl: string }) => [u.path, u.signedUrl]));
+  return json(req, 200, { profile, files: files.map((f) => ({ ...f, url: byPath.get(f.path) ?? null })) });
 }
 
 /* ------------------------------------------------------------------- handler */
@@ -513,6 +376,12 @@ Deno.serve(async (req) => {
 
     if (body.action === 'upload-url') return await uploadUrl(req, body, ipHash);
     if (body.action === 'submit') return await submit(req, body, ipHash, ip);
+    if (body.action === 'config') {
+      // Both are public by design: the project address and its anon key, which the admin page signs in with.
+      return json(req, 200, { url: Deno.env.get('SUPABASE_URL') ?? '', anonKey: Deno.env.get('SUPABASE_ANON_KEY') ?? '' });
+    }
+    if (body.action === 'admin-list') return await adminList(req);
+    if (body.action === 'admin-get') return await adminGet(req, body);
     throw new Fail(400, 'bad_action');
   } catch (e) {
     if (e instanceof Fail) return json(req, e.status, { error: e.code });

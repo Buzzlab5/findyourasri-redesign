@@ -19,7 +19,6 @@ import {
   KIT_MAX_FILES,
   makeGetter,
   sections,
-  summarize,
   type Answer,
   type Field,
   type KitCategory,
@@ -147,8 +146,11 @@ export default function ClientProfileApp() {
   const [token, setToken] = useState('');
   const [hint, setHint] = useState('');
   const [copied, setCopied] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLFormElement>(null);
+  const mbarRef = useRef<HTMLDivElement>(null);
   const queue = useRef<Promise<void>>(Promise.resolve());
   const filesRef = useRef<KitFile[]>([]);
   const started = useRef(false);
@@ -196,6 +198,16 @@ export default function ClientProfileApp() {
     }, 300);
     return () => clearTimeout(t);
   }, [hydrated, answers, step, visited, files, draftId, status]);
+
+  // The phone's section list closes when you tap anywhere else.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const away = (e: PointerEvent) => {
+      if (!mbarRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', away);
+    return () => document.removeEventListener('pointerdown', away);
+  }, [menuOpen]);
 
   const get = makeGetter(answers);
   const section = sections[step];
@@ -260,9 +272,11 @@ export default function ClientProfileApp() {
     setStep(to);
     setVisited((v) => (v.includes(to) ? v : [...v, to]));
     setErrors({});
+    setMenuOpen(false);
     requestAnimationFrame(() => {
-      const top = topRef.current;
-      if (top && top.getBoundingClientRect().top < 0) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Back to the top of the new section, below the sticky header and progress bar.
+      const panel = panelRef.current;
+      if (panel && panel.getBoundingClientRect().top < 0) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       headingRef.current?.focus({ preventScroll: true });
     });
   }
@@ -322,7 +336,6 @@ export default function ClientProfileApp() {
         draftId,
         answers: out,
         followups: followUps(get, done.length),
-        summary: summarize(get),
         files: done.map(({ path, name, category }) => ({ path, name, category })),
         source: { page: window.location.pathname, ...readUtm() },
         website: honeypot.current?.value ?? '',
@@ -454,38 +467,60 @@ export default function ClientProfileApp() {
     );
   }
 
+  const sectionButtons = sections.map((s, i) => (
+    <li key={s.id}>
+      <button
+        type="button"
+        aria-current={i === step ? 'step' : undefined}
+        className={visited.includes(i) && sectionDone(i) ? 'is-done' : undefined}
+        onClick={() => go(i)}
+      >
+        <span className="cp__tick" aria-hidden="true">
+          {i + 1}
+        </span>
+        {s.title}
+      </button>
+    </li>
+  ));
+
   return (
     <div className="cp">
       <div className="tone-cream cp__body" ref={topRef}>
         <div className="cp__layout">
-          <aside className="cp__side">
-          <h1 className="cp__title">Client profile</h1>
-          <p className="cp__sub">{nw('It takes around 25 to 30 minutes. Your answers are saved on this device as you go, so you can stop and come back.')}</p>
-          <nav className="cp__rail" aria-label="Sections">
-            <ol>
-              {sections.map((s, i) => (
-                <li key={s.id}>
-                  <button
-                    type="button"
-                    aria-current={i === step ? 'step' : undefined}
-                    className={visited.includes(i) && sectionDone(i) ? 'is-done' : undefined}
-                    onClick={() => go(i)}
-                  >
-                    <span className="cp__tick" aria-hidden="true">
-                      {i + 1}
-                    </span>
-                    {s.title}
-                  </button>
-                </li>
-              ))}
-            </ol>
-            <div className="cp__progress" aria-hidden="true">
-              <span style={{ width: `${(sections.filter((_, i) => visited.includes(i) && sectionDone(i)).length / sections.length) * 100}%` }} />
+          {/* Phones: where you are, always in view, with the full list one tap away. */}
+          <div className={`cp__mbar${menuOpen ? ' is-open' : ''}`} ref={mbarRef}>
+            <button type="button" className="cp__mbar-btn" aria-expanded={menuOpen} aria-controls="cp-mnav" onClick={() => setMenuOpen((o) => !o)}>
+              <span className="cp__tick" aria-hidden="true">
+                {step + 1}
+              </span>
+              <span className="cp__mbar-title">{section.title}</span>
+              <span className="cp__mbar-count">
+                {step + 1} of {sections.length}
+              </span>
+              <span className="cp__mbar-caret" aria-hidden="true" />
+            </button>
+            <div className="cp__progress cp__progress--bar" aria-hidden="true">
+              <span style={{ width: `${((step + 1) / sections.length) * 100}%` }} />
             </div>
-          </nav>
+            {menuOpen ? (
+              <nav id="cp-mnav" className="cp__mnav" aria-label="Sections">
+                <ol>{sectionButtons}</ol>
+              </nav>
+            ) : null}
+          </div>
+
+          <aside className="cp__side">
+            <h1 className="cp__title">Client profile</h1>
+            <p className="cp__sub">{nw('It takes around 25 to 30 minutes. Your answers are saved on this device as you go, so you can stop and come back.')}</p>
+            <nav className="cp__rail" aria-label="Sections">
+              <ol>{sectionButtons}</ol>
+              <div className="cp__progress" aria-hidden="true">
+                <span style={{ width: `${(sections.filter((_, i) => visited.includes(i) && sectionDone(i)).length / sections.length) * 100}%` }} />
+              </div>
+            </nav>
           </aside>
 
-          <form className="cp__panel" onSubmit={onSubmit} noValidate>
+          <form className="cp__panel" ref={panelRef} onSubmit={onSubmit} noValidate>
             {/* Bots fill this. People never see it. */}
             <p className="form__trap" aria-hidden="true">
               <label>
