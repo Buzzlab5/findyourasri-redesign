@@ -750,3 +750,43 @@
 .po-check-ticked .po-where {
   color: var(--po-ink-3) !important;
 }
+
+
+/* ------------------------------------------- the countdown, once a date exists */
+.po-phase-rel {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(27, 23, 18, 0.2);
+  color: var(--po-dark-ink-3);
+  letter-spacing: 0.08em;
+}
+.po-here,
+.po-done-tag {
+  margin-left: 12px;
+  padding: 4px 9px;
+  font: 500 10px/1 var(--po-text);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+.po-here {
+  background: #a57e43;
+  color: var(--po-cream);
+}
+.po-done-tag {
+  border: 1px solid rgba(27, 23, 18, 0.22);
+  color: var(--po-dark-ink-3);
+}
+.po-phases .po-phase-now {
+  background: rgba(165, 126, 67, 0.09);
+  box-shadow: inset 2px 0 0 #a57e43;
+  padding-left: 14px;
+  margin-left: -14px;
+}
+.po-phases .po-phase-past h3,
+.po-phases .po-phase-past .po-phase-does {
+  color: var(--po-dark-ink-3);
+}
+.po-phases .po-phase-soon .po-phase-when {
+  color: #8c3b1e;
+}

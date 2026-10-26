@@ -20,7 +20,7 @@ type Meta = { v: number; kdf: string; rounds: number; salt: string; cipher: stri
 
 type Tile = { big: string; what: string; note: string };
 type Filed = { label: string; date: string; state: string };
-type Phase = { n: string; phase: string; when: string; does: string };
+type Phase = { n: string; phase: string; when: string; rel: string; does: string; state: string };
 type Check = {
   n: string;
   title: string;
@@ -55,6 +55,7 @@ type Payload = {
   filed: Filed[];
   countdown: Phase[];
   example: string;
+  opening: { known: boolean; date: string; days: number };
   checklist: Check[];
   form: Form;
   steps: Step[];
@@ -269,11 +270,18 @@ function Page({ c, ticksKey }: { c: Payload; ticksKey: string }) {
               <>
                 <ol className="po-phases">
                   {c.countdown.map((x) => (
-                    <li key={x.n}>
+                    <li key={x.n} className={x.state ? `po-phase-${x.state}` : undefined}>
                       <span className="po-phase-n">{x.n}</span>
                       <div>
-                        <h3>{x.phase}</h3>
-                        <p className="po-phase-when">{x.when}</p>
+                        <h3>
+                          {x.phase}
+                          {x.state === 'now' ? <span className="po-here">We are here</span> : null}
+                          {x.state === 'past' ? <span className="po-done-tag">Done</span> : null}
+                        </h3>
+                        <p className="po-phase-when">
+                          {x.when}
+                          {c.opening.known ? <span className="po-phase-rel">{x.rel}</span> : null}
+                        </p>
                         <p className="po-phase-does">{x.does}</p>
                       </div>
                     </li>
