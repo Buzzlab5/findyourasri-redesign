@@ -351,7 +351,7 @@ async function adminList(req: Request) {
     requireAdmin(req),
     db
       .from('client_profiles')
-      .select('id,business_name,contact_name,contact_email,country,sector,services,budget,status,submitted_at,client_files(count)')
+      .select('id,business_name,contact_name,contact_email,country,sector,services,budget,status,submitted_at,followups,client_files(count)')
       .order('submitted_at', { ascending: false })
       .limit(500),
   ]);

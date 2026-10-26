@@ -1,22 +1,54 @@
-/* The client profile intake (/client-profile/). Sits on the site's cream
-   reading page (.tone-cream) so a 25 minute form is easy on the eyes. Colours,
-   type and buttons come from brand.css; only the form's own layout is here.
-   Square corners, gold hairlines, no numbering and no kicker labels. */
+/* The client profile intake (/client-profile/).
 
-.cp .cp__body.tone-cream { margin-top: 0; padding-top: clamp(20px, 2.4vw, 32px); }
+   Layout: a side list in four chapters with a progress ring, one section at a
+   time on the right as titled cards, and a bottom bar that stays in view.
+   Light is the site's cream reading page (.tone-cream); dark is the site's own
+   warm black, which is simply the page without .tone-cream. Every colour comes
+   from the site's tokens (brand.css), so both themes use the same rules.
+   Square corners, gold hairlines. */
+
+.cp__body { --cp-err: #E08A76; }
+.cp__body.tone-cream { --cp-err: #A8321F; }
+.cp .cp__body { padding-top: clamp(20px, 2.4vw, 32px); }
+.cp .cp__body.tone-cream { margin-top: 0; }
 .cp__ref { margin-top: 14px; color: var(--a-ink-3); font: 400 14px/1.5 var(--font-sans); }
 .cp__layout {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: 264px minmax(0, 1fr);
   gap: clamp(24px, 4vw, 56px);
   align-items: start;
 }
 
-/* ---- section rail ---- */
-.cp__side { position: sticky; top: calc(var(--hdr-h) + 16px); max-height: calc(100vh - var(--hdr-h) - 32px); overflow-y: auto; }
+/* ---- side: title, theme, then the part that stays in view ---- */
+.cp__side { align-self: stretch; }
 .cp__title { margin: 0 0 8px 10px; font: 400 clamp(24px, 2.2vw, 30px)/1.1 var(--font-display); letter-spacing: .01em; text-transform: uppercase; }
-.cp__sub { margin: 0 0 20px 10px; color: var(--a-ink-3); font: 400 13.5px/1.5 var(--font-sans); }
+.cp__sub { margin: 0 0 16px 10px; color: var(--a-ink-3); font: 400 13.5px/1.5 var(--font-sans); }
+.cp__sticky { position: sticky; top: calc(var(--hdr-h) + 16px); max-height: calc(100vh - var(--hdr-h) - 32px); overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px; }
+.cp__theme { display: inline-flex; margin: 0 0 24px 10px; border: 1px solid var(--a-line); }
+.cp__theme button {
+  all: unset;
+  box-sizing: border-box;
+  padding: 6px 14px;
+  cursor: pointer;
+  color: var(--a-ink-2);
+  font: 600 12.5px/1.3 var(--font-sans);
+}
+.cp__theme button + button { border-left: 1px solid var(--a-line); }
+.cp__theme button[aria-pressed='true'] { background: var(--a-ink); color: var(--a-canvas); }
+.cp__theme button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .cp__h3 { margin: 28px 0 0; font: 400 22px/1.2 var(--font-display); text-transform: uppercase; letter-spacing: .01em; }
+
+.cp__ring { display: flex; align-items: center; gap: 14px; margin: 0 0 18px 10px; }
+.cp__ring svg { width: 54px; height: 54px; flex: none; }
+.cp__ring circle { fill: none; stroke-width: 3; }
+.cp__ring-bg { stroke: var(--a-line-soft); }
+.cp__ring-fg { stroke: var(--gold); transition: stroke-dasharray .3s; }
+.cp__ring b { display: block; font: 600 15px/1.3 var(--font-sans); }
+.cp__ring span { color: var(--a-ink-3); font: 400 13px/1.4 var(--font-sans); }
+
+.cp__chap { display: grid; gap: 2px; margin-bottom: 14px; }
+.cp__chap-title { padding: 0 10px 6px; border-bottom: 1px solid var(--a-line-soft); color: var(--a-ink-3); font: 600 13px/1.3 var(--font-sans); }
+.cp__chap ol { margin-top: 4px; }
 :is(.cp__rail, .cp__mnav) ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 :is(.cp__rail, .cp__mnav) button {
   all: unset;
@@ -31,7 +63,7 @@
   font: 400 14.5px/1.35 var(--font-sans);
 }
 :is(.cp__rail, .cp__mnav) button:hover { color: var(--a-ink); }
-:is(.cp__rail, .cp__mnav) button[aria-current='step'] { color: var(--a-ink); box-shadow: inset 2px 0 0 var(--gold); background: var(--a-card); }
+:is(.cp__rail, .cp__mnav) button[aria-current='step'] { color: var(--a-ink); font-weight: 700; box-shadow: inset 2px 0 0 var(--gold); background: var(--a-card); }
 :is(.cp__rail, .cp__mnav) button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .cp__tick {
   flex: none;
@@ -49,27 +81,66 @@
 :is(.cp__rail, .cp__mnav) button:hover .cp__tick { border-color: var(--gold); }
 :is(.cp__rail, .cp__mnav) button[aria-current='step'] .cp__tick { border-color: var(--gold); color: var(--a-ink); }
 :is(.cp__rail, .cp__mnav) button.is-done .cp__tick { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
-.cp__progress { height: 2px; margin: 16px 10px 0; background: var(--a-line-soft); overflow: hidden; }
+.cp__chap-review { margin-top: 4px; }
+.cp__progress { height: 2px; background: var(--a-line-soft); overflow: hidden; }
 .cp__progress span { display: block; height: 100%; background: var(--gold); transition: width .3s; }
 
-/* ---- the panel ---- */
-.cp__panel {
-  min-width: 0;
-  background: var(--a-card);
-  border: 1px solid var(--a-line);
-  padding: clamp(22px, 3.6vw, 48px);
-}
+/* ---- the panel: a heading, then cards, then the bar ---- */
+.cp__panel { min-width: 0; display: grid; align-content: start; gap: 0; }
+.cp__scroll { display: grid; gap: 18px; align-content: start; }
+.cp__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
 .cp__h2 {
-  margin: 0 0 10px;
-  font: 400 clamp(26px, 3vw, 38px)/1.15 var(--font-display);
+  margin: 0;
+  font: 400 clamp(28px, 3.2vw, 40px)/1.12 var(--font-display);
   letter-spacing: .01em;
   text-transform: uppercase;
   text-wrap: balance;
 }
 .cp__h2:focus { outline: none; }
-.cp__lede { max-width: 62ch; margin: 0 0 32px; color: var(--a-ink-2); }
-.cp__note { max-width: 66ch; margin: -12px 0 32px; padding: 14px 18px; background: var(--a-tint); border-left: 2px solid var(--gold); font-size: 15px; }
-.cp__fields { display: flex; flex-direction: column; gap: 28px; }
+.cp__est { padding: 2px 10px; border: 1px solid var(--a-line); border-radius: 999px; color: var(--a-ink-3); font: 400 13px/1.5 var(--font-sans); white-space: nowrap; }
+.cp__lede { max-width: 62ch; margin: 0 0 4px; color: var(--a-ink-2); }
+.cp__note { max-width: 66ch; margin: 0; padding: 14px 18px; background: var(--a-tint); border-left: 2px solid var(--gold); font-size: 15px; }
+.cp-group {
+  display: grid;
+  gap: 20px;
+  padding: clamp(18px, 2.6vw, 28px);
+  background: var(--a-card);
+  border: 1px solid var(--a-line);
+}
+.cp-group__title { margin: 0; font: 400 20px/1.2 var(--font-display); letter-spacing: .01em; }
+.cp__fields { display: flex; flex-direction: column; gap: 24px; }
+
+/* ---- the bar that stays in view ---- */
+.cp__actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 18px;
+  padding: 14px clamp(16px, 2.6vw, 28px);
+  background: var(--a-card);
+  border: 1px solid var(--a-line);
+  box-shadow: 0 -12px 24px -18px rgba(0, 0, 0, .35);
+}
+.cp__actions--start { position: static; justify-content: flex-start; border: 0; padding: 0; margin-top: 28px; background: transparent; box-shadow: none; }
+.cp__actions .pill[disabled] { opacity: .4; cursor: default; pointer-events: none; }
+.cp__hint { display: inline-flex; align-items: center; gap: 8px; color: var(--a-ink-3); font: 400 13px/1.4 var(--font-sans); }
+.cp__actions .cp__hint:not(:empty)::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #5E9B73; flex: none; }
+.cp__next-to { margin-left: -.2em; }
+.cp__captcha { margin-top: 10px; }
+.cp__failed { padding: 14px 18px; border-left: 2px solid var(--cp-err); background: var(--a-tint); font: 400 15px/1.5 var(--font-sans); }
+.cp__failed p { margin: 0 0 8px; }
+.cp__failed a,
+.cp__linkbtn { color: inherit; border-bottom: 1px solid currentColor; }
+.cp__linkbtn { all: unset; cursor: pointer; color: var(--a-ink); border-bottom: 1px solid var(--a-line); font: 400 14.5px/1.4 var(--font-sans); }
+.cp__linkbtn:hover { border-color: var(--gold); }
+.cp__linkbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.cp__copybox { display: block; width: 100%; min-height: 200px; margin-top: 16px; padding: 12px; border: 1px solid var(--a-line); background: transparent; color: var(--a-ink); font: 13px/1.5 var(--font-sans); }
+.cp__copybox[hidden] { display: none; }
 
 /* ---- questions ---- */
 .cp-field .field__label,
@@ -91,13 +162,16 @@
 .cp-field textarea { min-height: 104px; padding: 12px; border: 1px solid var(--a-line); resize: vertical; }
 .cp-field textarea:focus { box-shadow: none; outline: 2px solid var(--gold); outline-offset: 0; }
 .cp .field__error,
-.cp .is-invalid .field__error { color: #A8321F; font: 400 13.5px/1.4 var(--font-sans); }
+.cp .is-invalid .field__error { color: var(--cp-err); font: 400 13.5px/1.4 var(--font-sans); }
 .cp .field.is-invalid input,
 .cp .field.is-invalid select,
-.cp .field.is-invalid textarea { border-color: #A8321F; }
-.cp-q.is-invalid .cp-chip span { border-color: #A8321F; }
-.cp-sub { margin-left: 14px; padding-left: 18px; border-left: 1px solid var(--a-line-soft); }
+.cp .field.is-invalid textarea { border-color: var(--cp-err); }
+.cp-q.is-invalid .cp-chip span,
+.cp-q.is-invalid .cp-seg,
+.cp-q.is-invalid .cp-tile__in { border-color: var(--cp-err); }
+.cp-sub { margin-left: 4px; padding-left: 18px; border-left: 1px solid var(--a-line); }
 
+/* chips: pick several */
 .cp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .cp-chip { position: relative; display: inline-flex; }
 .cp-chip input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
@@ -112,6 +186,43 @@
 .cp-chip:hover span { border-color: var(--gold); }
 .cp-chip input:checked + span { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
 .cp-chip input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* segmented control: pick one of a few short options */
+.cp-seg { display: inline-grid; grid-auto-flow: column; justify-self: start; max-width: 100%; border: 1px solid var(--a-line); }
+.cp-seg__opt { position: relative; display: block; }
+.cp-seg__opt input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.cp-seg__opt span {
+  display: block;
+  padding: 10px 16px;
+  border-right: 1px solid var(--a-line);
+  font: 400 14.5px/1.3 var(--font-sans);
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.cp-seg__opt:last-child span { border-right: 0; }
+.cp-seg__opt:hover span { background: var(--a-tint); }
+.cp-seg__opt input:checked + span { background: var(--gold); color: var(--on-gold); }
+.cp-seg__opt input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+/* tiles: pick one of several, with a hint under each */
+.cp-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.cp-tile { position: relative; display: block; }
+.cp-tile input { position: absolute; inset: 0; z-index: 1; margin: 0; opacity: 0; cursor: pointer; }
+.cp-tile__in {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  height: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--a-line);
+  background: var(--a-canvas);
+  transition: border-color .15s, background .15s;
+}
+.cp-tile__in b { font: 600 14.5px/1.3 var(--font-sans); }
+.cp-tile__in small { color: var(--a-ink-3); font: 400 12.5px/1.4 var(--font-sans); }
+.cp-tile:hover .cp-tile__in { border-color: var(--gold); }
+.cp-tile input:checked + .cp-tile__in { border-color: var(--gold); background: var(--a-tint); box-shadow: inset 0 0 0 1px var(--gold); }
+.cp-tile input:focus-visible + .cp-tile__in { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .cp-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; max-width: 640px; }
 .cp-pair input {
@@ -129,7 +240,7 @@
 .cp-consent { display: flex; gap: 12px; align-items: flex-start; max-width: 62ch; font-size: 15.5px; cursor: pointer; }
 .cp-consent input { margin-top: 5px; accent-color: var(--gold); }
 
-/* ---- brand kit ---- */
+/* ---- uploads ---- */
 .cp-kit__drop {
   display: flex;
   flex-wrap: wrap;
@@ -157,7 +268,7 @@
 .cp-kit__size { color: var(--a-ink-3); font-size: 13px; white-space: nowrap; }
 .cp-kit__state { font-size: 13px; color: var(--a-ink-3); }
 .cp-kit__file.is-done .cp-kit__state { color: var(--gold-2); }
-.cp-kit__file.is-error .cp-kit__state { color: #A8321F; grid-column: 1 / -1; order: 5; }
+.cp-kit__file.is-error .cp-kit__state { color: var(--cp-err); grid-column: 1 / -1; order: 5; }
 .cp-kit__file.is-error .cp-kit__name { text-decoration: line-through; color: var(--a-ink-3); }
 .cp-kit__remove {
   width: 28px;
@@ -172,54 +283,22 @@
 }
 .cp-kit__remove:hover { border-color: var(--gold); color: var(--gold-2); }
 
-/* ---- actions, errors, done ---- */
-.cp__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid var(--a-line-soft);
-}
-.cp__actions--start { justify-content: flex-start; border-top: 0; padding-top: 0; margin-top: 28px; }
-.cp__actions .pill[disabled] { opacity: .4; cursor: default; pointer-events: none; }
-.cp__hint { color: var(--a-ink-3); font: 400 13px/1.4 var(--font-sans); }
-.cp__captcha { margin-top: 28px; }
-.cp__failed { margin-top: 28px; padding: 14px 18px; border-left: 2px solid #A8321F; background: var(--a-tint); font: 400 15px/1.5 var(--font-sans); }
-.cp__failed p { margin: 0 0 8px; }
-.cp__failed a,
-.cp__linkbtn { color: inherit; border-bottom: 1px solid currentColor; }
-.cp__linkbtn { all: unset; cursor: pointer; border-bottom: 1px solid currentColor; }
-.cp__copybox { display: block; width: 100%; min-height: 200px; margin-top: 16px; padding: 12px; border: 1px solid var(--a-line); background: transparent; color: var(--a-ink); font: 13px/1.5 var(--font-sans); }
-.cp__copybox[hidden] { display: none; }
+/* ---- review and thank-you ---- */
+.cp-rev { display: grid; gap: 14px; }
+.cp-rev__todo { padding: 14px 18px; border-left: 2px solid var(--cp-err); background: var(--a-tint); font: 400 15px/1.5 var(--font-sans); }
+.cp-rev__todo ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.cp-rev__sec { gap: 8px; }
+.cp-rev__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.cp-rev__list { margin: 0; display: grid; }
+.cp-rev__list > div { display: grid; grid-template-columns: minmax(140px, 34%) minmax(0, 1fr); gap: 4px 20px; padding: 9px 0; border-bottom: 1px solid var(--a-line-soft); }
+.cp-rev__list > div:last-child { border-bottom: 0; }
+.cp-rev__list dt { color: var(--a-ink-3); font-size: 14px; }
+.cp-rev__list dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cp__done { max-width: 720px; margin: 0 auto; }
 .cp__sum { display: grid; gap: 0; margin: 20px 0 0; border-top: 1px solid var(--a-line-soft); }
 .cp__sum div { display: grid; grid-template-columns: minmax(140px, 240px) minmax(0, 1fr); gap: 4px 20px; padding: 12px 0; border-bottom: 1px solid var(--a-line-soft); }
 .cp__sum dt { color: var(--a-ink-3); font-size: 14px; }
 .cp__sum dd { margin: 0; overflow-wrap: anywhere; }
-
-/* On a short laptop screen the title, note and sixteen sections do not all fit beside the form: let them scroll with the page. */
-@media (max-height: 860px) and (min-width: 861px) {
-  .cp__side { position: static; max-height: none; overflow: visible; }
-}
-@media (max-width: 860px) {
-  .cp__layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .cp__side { position: static; max-height: none; overflow: visible; }
-  .cp__rail { display: none; }
-  .cp__mbar { display: block; }
-  .cp__panel { scroll-margin-top: calc(var(--hdr-h) + 72px); }
-  .cp-pair { grid-template-columns: minmax(0, 1fr); }
-  .cp-kit__file { grid-template-columns: minmax(0, 1fr) 32px; }
-  .cp-kit__name { grid-column: 1; grid-row: 1; }
-  .cp-kit__remove { grid-column: 2; grid-row: 1; }
-  .cp-kit__size, .cp-kit__state { grid-column: 1 / -1; }
-  .cp__sum div { grid-template-columns: minmax(0, 1fr); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cp *, .cp *::before, .cp *::after { transition: none !important; }
-}
 
 /* ---- phone with country picker ---- */
 .cp-phone { position: relative; max-width: 640px; }
@@ -251,7 +330,7 @@
   width: min(380px, 100%);
   background: var(--a-card);
   border: 1px solid var(--gold);
-  box-shadow: 0 12px 32px rgba(18, 26, 28, .16);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .25);
 }
 .cp-phone .cp-phone__search {
   width: 100%;
@@ -279,17 +358,6 @@
 .cp-phone__list li[aria-selected='true'] .cp-phone__name { font-weight: 600; }
 .cp-phone__dial { color: var(--a-ink-3); font-size: 13px; }
 .cp-phone__list .cp-phone__none { display: block; color: var(--a-ink-3); cursor: default; }
-
-/* No single word alone on the last line. text-wrap does it where supported; the form's copy also ties its last two words (nw in ClientProfileApp). */
-.cp p,
-.cp .cp-help,
-.cp .cp-q__label,
-.cp .field__label,
-.cp .cp-consent span { text-wrap: pretty; }
-.cp .cp__sub,
-.cp .cp__lede,
-.cp .cp__title,
-.cp .cp__h2 { text-wrap: balance; }
 
 /* ---- brand colours ---- */
 .cp-colors { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 640px; }
@@ -326,13 +394,7 @@
 
 /* ---- phones: a sticky "step 3 of 14" bar in place of the side list ---- */
 .cp__panel { scroll-margin-top: calc(var(--hdr-h) + 12px); }
-.cp__mbar {
-  position: sticky;
-  top: var(--hdr-h);
-  z-index: 20;
-  align-self: start;
-  isolation: isolate;
-}
+.cp__mbar { position: sticky; top: var(--hdr-h); z-index: 20; align-self: start; isolation: isolate; }
 .cp__mbar::before {
   content: '';
   position: absolute;
@@ -370,14 +432,53 @@
   max-height: calc(100svh - var(--hdr-h) - 80px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 6px;
+  padding: 10px 6px 6px;
   background: var(--a-card);
   border: 1px solid var(--a-line);
-  box-shadow: 0 16px 32px rgba(18, 26, 28, .18);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, .28);
 }
 .cp__mnav button { padding: 10px 10px; }
+
+/* No single word alone on the last line. text-wrap does it where supported; the form's copy also ties its last two words (nw in ClientProfileApp). */
+.cp p,
+.cp .cp-help,
+.cp .cp-q__label,
+.cp .field__label,
+.cp .cp-consent span { text-wrap: pretty; }
+.cp .cp__sub,
+.cp .cp__lede,
+.cp .cp__title,
+.cp .cp__h2 { text-wrap: balance; }
 
 /* The side list does this job on wide screens. */
 @media (min-width: 861px) {
   .cp__mbar { display: none; }
+}
+/* On a short laptop screen the chapters do not all fit beside the form: let them scroll with the page. */
+@media (max-height: 760px) and (min-width: 861px) {
+  .cp__sticky { position: static; max-height: none; overflow: visible; }
+}
+@media (max-width: 860px) {
+  .cp__layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cp__side { align-self: start; }
+  .cp__sticky { display: none; }
+  .cp__panel { scroll-margin-top: calc(var(--hdr-h) + 72px); }
+  .cp-pair { grid-template-columns: minmax(0, 1fr); }
+  .cp-kit__file { grid-template-columns: minmax(0, 1fr) 32px; }
+  .cp-kit__name { grid-column: 1; grid-row: 1; }
+  .cp-kit__remove { grid-column: 2; grid-row: 1; }
+  .cp-kit__size, .cp-kit__state { grid-column: 1 / -1; }
+  .cp__sum div, .cp-rev__list > div { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  /* One slim row: Back on the left, Next on the right. The saved note is left out to make room. */
+  .cp__actions { flex-wrap: nowrap; }
+  .cp__actions .cp__hint { display: none; }
+  .cp-seg { display: grid; grid-auto-flow: row; width: 100%; }
+  .cp-seg__opt span { border-right: 0; border-bottom: 1px solid var(--a-line); white-space: normal; }
+  .cp-seg__opt:last-child span { border-bottom: 0; }
+  .cp__next-to { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp *, .cp *::before, .cp *::after { transition: none !important; }
 }

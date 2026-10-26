@@ -106,6 +106,17 @@ hanya email yang kamu daftarkan di langkah 4 di bawah.
 
 Tidak ada pengaturan baru di Vercel. Alamat function yang sudah ada dipakai ulang.
 
+### Tampilan admin
+
+Di kanan atas halaman ada pilihan **Split view** (daftar kecil di kiri, profile
+terbuka di kanan, seperti kotak masuk) dan **List** (daftar penuh, profile di halaman
+sendiri). Pilihan itu diingat di browser masing-masing. Titik kecil di samping nama
+berarti profile itu belum pernah dibuka di browser kamu. Lencana "to set up"
+dihitung dari follow-up tim di tiap profile.
+
+Setiap kali kode function berubah (misalnya menambah data untuk daftar), paste ulang
+`index.ts` dan Deploy lagi.
+
 ### Yang perlu diketahui
 
 - Link file yang dibuka dari halaman admin berlaku **1 jam**. Muat ulang

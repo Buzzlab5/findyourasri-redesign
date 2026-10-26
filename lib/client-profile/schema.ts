@@ -43,6 +43,8 @@ export type Field = {
   show?: Cond;
   /** For 'file' fields: the category their files are filed under; 'auto' guesses from the file name. */
   category?: KitCategory | 'auto';
+  /** The card this question sits in on screen. Set below, from GROUPS. */
+  group?: string;
 };
 
 export type Section = {
@@ -50,6 +52,8 @@ export type Section = {
   title: string;
   lede: string;
   note?: string;
+  /** Rough minutes a client needs for it, for the "time left" line. Set below, from MINUTES. */
+  minutes?: number;
   fields: Field[];
 };
 
@@ -371,6 +375,97 @@ export const sections: Section[] = [
     ],
   },
 ];
+
+/* ---------- how the form is laid out on screen ---------- */
+
+/** The 14 sections in four chapters, for the side list. */
+export const CHAPTERS: { title: string; ids: string[] }[] = [
+  { title: 'The basics', ids: ['about', 'business', 'goals', 'production', 'audience', 'competitors'] },
+  { title: 'Brand and content', ids: ['brand', 'assets'] },
+  { title: 'Online and tools', ids: ['website', 'social', 'tracking'] },
+  { title: 'Working together', ids: ['history', 'services', 'working'] },
+];
+
+const MINUTES: Record<string, number> = {
+  about: 2, business: 3, goals: 2, production: 3, audience: 2, competitors: 1, brand: 3,
+  assets: 2, website: 2, social: 2, tracking: 2, history: 2, services: 2, working: 1,
+};
+
+/** Questions of a section, in order, split into titled cards. Every question must appear in exactly one. */
+const GROUPS: Record<string, [string, string[]][]> = {
+  about: [
+    ['About you', ['biz_name', 'legal_name', 'contact_name', 'contact_role', 'contact_email', 'contact_phone']],
+    ['Where you are', ['country', 'city', 'timezone']],
+    ['Decisions and billing', ['approver', 'approver_detail', 'billing', 'billing_detail']],
+    ['Staying in touch', ['comms', 'heard']],
+  ],
+  business: [
+    ['Your business', ['sector', 'sector_other', 'one_liner']],
+    ['Where the business is today', ['stage', 'open_date', 'locations', 'location_list', 'sub_brands', 'sub_brand_list']],
+    ['What you offer', ['offerings', 'price_point', 'avg_value']],
+    ['Sales and seasons', ['channels', 'seasonality', 'usp']],
+  ],
+  goals: [
+    ['What you want', ['goal_list', 'goal_90', 'goal_12']],
+    ['How you measure it', ['kpis', 'key_dates']],
+  ],
+  production: [
+    ['Your interest', ['prod_interest']],
+    ['The content', ['prod_type', 'prod_feel', 'prod_story', 'prod_refs', 'prod_use', 'prod_formats', 'prod_deliverables', 'prod_people', 'prod_extras']],
+    ['The shoot', ['prod_when', 'prod_where', 'prod_logistics', 'prod_past', 'prod_past_detail', 'prod_budget']],
+  ],
+  audience: [
+    ['Who you serve', ['audience_desc', 'source_markets', 'target_markets']],
+    ['Who they are', ['ages', 'guest_type', 'languages', 'not_for']],
+  ],
+  competitors: [['Competitors and inspiration', ['competitors', 'admired', 'not_like']]],
+  brand: [
+    ['Where the brand stands', ['has_guidelines', 'guidelines_file', 'guidelines_link', 'has_logo', 'logo_files', 'logo_link']],
+    ['Look and feel', ['colors', 'fonts', 'tone']],
+    ['Voice and limits', ['three_words', 'tagline', 'story', 'avoid', 'compliance']],
+  ],
+  assets: [
+    ['Photography', ['has_photo', 'photo_link', 'photo_upload', 'photo_rights', 'photo_credit']],
+    ['Video and visuals', ['has_video', 'video_link', 'renders', 'renders_upload']],
+    ['Other material', ['other_assets', 'other_upload', 'press', 'ugc']],
+  ],
+  website: [
+    ['Your site today', ['has_site', 'site_url', 'site_platform', 'site_manager', 'site_manager_detail', 'site_feel', 'site_issues']],
+    ['Your domain', ['domain_owned', 'domain_name', 'domain_registrar', 'domain_account']],
+    ['What you would like', ['refs', 'site_pages']],
+  ],
+  social: [
+    ['Social media', ['platforms', ...PLATFORMS.map((p) => `url_${p.replace(/\W/g, '')}`), 'social_manager', 'post_freq', 'social_keep']],
+    ['Listings and reviews', ['gbp', 'gbp_link', 'listings', 'listing_links', 'reviews']],
+  ],
+  tracking: [
+    ['Analytics', ['ga4', 'ga4_id', 'gsc', 'gtm', 'gtm_id']],
+    ['Advertising accounts', ['meta_bm', 'meta_pixel', 'google_ads', 'tiktok_ads', 'acct_owner']],
+    ['Other tools', ['email_platform', 'email_list', 'booking_system', 'crm', 'other_tools']],
+  ],
+  history: [
+    ['What you have tried', ['marketed', 'history_what', 'prev_agency', 'worked', 'didnt_work']],
+    ['The numbers', ['ad_spend_now', 'results']],
+  ],
+  services: [
+    ['What you would like from us', ['services', 'priority', 'ads_platforms', 'creator_past', 'creator_host', 'event_desc']],
+    ['Budget and timing', ['budget', 'ad_budget', 'start']],
+  ],
+  working: [
+    ['How we work', ['approvals', 'turnaround', 'reporting', 'report_to', 'meetings']],
+    ['Before you send', ['off_limits', 'anything_else', 'consent']],
+  ],
+};
+
+for (const s of sections) {
+  s.minutes = MINUTES[s.id];
+  for (const [title, ids] of GROUPS[s.id] ?? []) {
+    for (const id of ids) {
+      const f = s.fields.find((x) => x.id === id);
+      if (f) f.group = title;
+    }
+  }
+}
 
 export const fields: Record<string, Field> = Object.fromEntries(sections.flatMap((s) => s.fields.map((f) => [f.id, f])));
 

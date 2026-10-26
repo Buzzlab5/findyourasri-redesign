@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { Arrow } from '@/components/Arrow';
 import {
   answersAsText,
+  CHAPTERS,
   collectAnswers,
   emptyFor,
   fields,
@@ -21,6 +22,7 @@ import {
   sections,
   type Answer,
   type Field,
+  type Getter,
   type KitCategory,
   type RefRow,
   type Section,
@@ -46,6 +48,7 @@ import './client-profile.css';
 const API = process.env.NEXT_PUBLIC_CLIENT_PROFILE_API ?? '';
 const TURNSTILE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 const STORE = 'asri-client-profile-v3';
+const THEME_STORE = 'asri-form-theme';
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type KitFile = {
@@ -147,6 +150,7 @@ export default function ClientProfileApp() {
   const [hint, setHint] = useState('');
   const [copied, setCopied] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const headingRef = useRef<HTMLHeadingElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLFormElement>(null);
@@ -171,9 +175,15 @@ export default function ClientProfileApp() {
     /* eslint-disable react-hooks/set-state-in-effect -- one-off restore of the saved draft */
     setDraftId(saved.draftId || crypto.randomUUID());
     setAnswers(saved.a ?? {});
-    setStep(Math.min(saved.step ?? 0, sections.length - 1));
+    setStep(Math.min(saved.step ?? 0, sections.length));
     setVisited(saved.visited?.length ? saved.visited : [0]);
     setFiles((saved.files ?? []).filter((f) => f.path).map((f) => ({ ...f, status: 'done' as const, progress: 1 })));
+    try {
+      // Light unless this browser's visitor chose dark before: the page does not follow the system setting.
+      if (localStorage.getItem(THEME_STORE) === 'dark') setTheme('dark');
+    } catch {
+      // Storage unavailable: stay on the light page.
+    }
     setHydrated(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
@@ -210,8 +220,20 @@ export default function ClientProfileApp() {
   }, [menuOpen]);
 
   const get = makeGetter(answers);
-  const section = sections[step];
-  const isLast = step === sections.length - 1;
+  const total = sections.length;
+  const isReview = step === total;
+  const section = sections[Math.min(step, total - 1)];
+  const minsLeft = sections.slice(Math.min(step, total)).reduce((n, x) => n + (x.minutes ?? 0), 0);
+  const bodyClass = `${theme === 'light' ? 'tone-cream ' : ''}cp__body`;
+
+  function chooseTheme(next: 'light' | 'dark') {
+    setTheme(next);
+    try {
+      localStorage.setItem(THEME_STORE, next);
+    } catch {
+      // The choice just is not remembered.
+    }
+  }
   // Files count only while the question they were added under is still showing.
   const done = files.filter((f) => f.status === 'done' && fields[f.field] && isVisible(fields[f.field], get));
 
@@ -268,7 +290,7 @@ export default function ClientProfileApp() {
   }
 
   function go(i: number) {
-    const to = Math.max(0, Math.min(sections.length - 1, i));
+    const to = Math.max(0, Math.min(sections.length, i));
     setStep(to);
     setVisited((v) => (v.includes(to) ? v : [...v, to]));
     setErrors({});
@@ -292,18 +314,18 @@ export default function ClientProfileApp() {
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const found = check(section);
-    if (Object.keys(found).length) {
-      setErrors(found);
-      focusFirstError(found);
-      return;
-    }
-    if (!isLast) {
+    if (!isReview) {
+      const found = check(section);
+      if (Object.keys(found).length) {
+        setErrors(found);
+        focusFirstError(found);
+        return;
+      }
       go(step + 1);
       return;
     }
 
-    // Last step: every section has to be complete before it goes.
+    // Review step: every section has to be complete before it goes.
     for (let i = 0; i < sections.length; i++) {
       const missing = check(sections[i]);
       if (Object.keys(missing).length) {
@@ -421,7 +443,7 @@ export default function ClientProfileApp() {
   if (status === 'done') {
     return (
       <div className="cp">
-        <div className="tone-cream cp__body" ref={topRef}>
+        <div className={bodyClass} ref={topRef}>
           <div className="cp__done">
             <h1 className="cp__h2">Thank you</h1>
             <p className="cp__lede">
@@ -467,44 +489,91 @@ export default function ClientProfileApp() {
     );
   }
 
-  const sectionButtons = sections.map((s, i) => (
-    <li key={s.id}>
-      <button
-        type="button"
-        aria-current={i === step ? 'step' : undefined}
-        className={visited.includes(i) && sectionDone(i) ? 'is-done' : undefined}
-        onClick={() => go(i)}
-      >
-        <span className="cp__tick" aria-hidden="true">
-          {i + 1}
-        </span>
-        {s.title}
+  const sectionButton = (id: string) => {
+    const i = sections.findIndex((x) => x.id === id);
+    return (
+      <li key={id}>
+        <button
+          type="button"
+          aria-current={i === step ? 'step' : undefined}
+          className={visited.includes(i) && sectionDone(i) ? 'is-done' : undefined}
+          onClick={() => go(i)}
+        >
+          <span className="cp__tick" aria-hidden="true">
+            {i + 1}
+          </span>
+          {sections[i].title}
+        </button>
+      </li>
+    );
+  };
+  const chapters = (
+    <>
+      {CHAPTERS.map((c) => (
+        <div className="cp__chap" key={c.title}>
+          <b className="cp__chap-title">{c.title}</b>
+          <ol>{c.ids.map(sectionButton)}</ol>
+        </div>
+      ))}
+      <ol className="cp__chap-review">
+        <li>
+          <button type="button" aria-current={isReview ? 'step' : undefined} onClick={() => go(total)}>
+            <span className="cp__tick" aria-hidden="true">
+              &rarr;
+            </span>
+            Review and send
+          </button>
+        </li>
+      </ol>
+    </>
+  );
+
+  const frac = Math.min(step + 1, total) / total;
+  const stepText = isReview ? 'Last step' : `Step ${step + 1} of ${total}`;
+  const timeText = isReview ? 'Check it and send' : `About ${minsLeft} minute${minsLeft === 1 ? '' : 's'} left`;
+
+  const themeToggle = (
+    <div className="cp__theme" role="group" aria-label="Colour theme">
+      <button type="button" aria-pressed={theme === 'light'} onClick={() => chooseTheme('light')}>
+        Light
       </button>
-    </li>
-  ));
+      <button type="button" aria-pressed={theme === 'dark'} onClick={() => chooseTheme('dark')}>
+        Dark
+      </button>
+    </div>
+  );
+
+  // The visible questions of this section, in order, split into their titled cards.
+  const groups: { title?: string; fields: Field[] }[] = [];
+  if (!isReview) {
+    for (const f of section.fields) {
+      if (!isVisible(f, get)) continue;
+      const last = groups[groups.length - 1];
+      if (last && last.title === f.group) last.fields.push(f);
+      else groups.push({ title: f.group, fields: [f] });
+    }
+  }
 
   return (
     <div className="cp">
-      <div className="tone-cream cp__body" ref={topRef}>
+      <div className={bodyClass} ref={topRef}>
         <div className="cp__layout">
           {/* Phones: where you are, always in view, with the full list one tap away. */}
           <div className={`cp__mbar${menuOpen ? ' is-open' : ''}`} ref={mbarRef}>
             <button type="button" className="cp__mbar-btn" aria-expanded={menuOpen} aria-controls="cp-mnav" onClick={() => setMenuOpen((o) => !o)}>
               <span className="cp__tick" aria-hidden="true">
-                {step + 1}
+                {isReview ? '\u2192' : step + 1}
               </span>
-              <span className="cp__mbar-title">{section.title}</span>
-              <span className="cp__mbar-count">
-                {step + 1} of {sections.length}
-              </span>
+              <span className="cp__mbar-title">{isReview ? 'Review and send' : section.title}</span>
+              <span className="cp__mbar-count">{isReview ? 'Last step' : `${step + 1} of ${total}`}</span>
               <span className="cp__mbar-caret" aria-hidden="true" />
             </button>
             <div className="cp__progress cp__progress--bar" aria-hidden="true">
-              <span style={{ width: `${((step + 1) / sections.length) * 100}%` }} />
+              <span style={{ width: `${frac * 100}%` }} />
             </div>
             {menuOpen ? (
               <nav id="cp-mnav" className="cp__mnav" aria-label="Sections">
-                <ol>{sectionButtons}</ol>
+                {chapters}
               </nav>
             ) : null}
           </div>
@@ -512,61 +581,84 @@ export default function ClientProfileApp() {
           <aside className="cp__side">
             <h1 className="cp__title">Client profile</h1>
             <p className="cp__sub">{nw('It takes around 25 to 30 minutes. Your answers are saved on this device as you go, so you can stop and come back.')}</p>
-            <nav className="cp__rail" aria-label="Sections">
-              <ol>{sectionButtons}</ol>
-              <div className="cp__progress" aria-hidden="true">
-                <span style={{ width: `${(sections.filter((_, i) => visited.includes(i) && sectionDone(i)).length / sections.length) * 100}%` }} />
+            {themeToggle}
+            <div className="cp__sticky">
+              <div className="cp__ring">
+                <svg viewBox="0 0 36 36" aria-hidden="true">
+                  <circle cx="18" cy="18" r="15.5" className="cp__ring-bg" />
+                  <circle cx="18" cy="18" r="15.5" className="cp__ring-fg" strokeDasharray={`${frac * 97.4} 97.4`} transform="rotate(-90 18 18)" />
+                </svg>
+                <div>
+                  <b>{stepText}</b>
+                  <span>{timeText}</span>
+                </div>
               </div>
-            </nav>
+              <nav className="cp__rail" aria-label="Sections">
+                {chapters}
+              </nav>
+            </div>
           </aside>
 
           <form className="cp__panel" ref={panelRef} onSubmit={onSubmit} noValidate>
-            {/* Bots fill this. People never see it. */}
-            <p className="form__trap" aria-hidden="true">
-              <label>
-                Leave this empty <input ref={honeypot} name="website" tabIndex={-1} autoComplete="off" />
-              </label>
-            </p>
+            <div className="cp__scroll">
+              {/* Bots fill this. People never see it. */}
+              <p className="form__trap" aria-hidden="true">
+                <label>
+                  Leave this empty <input ref={honeypot} name="website" tabIndex={-1} autoComplete="off" />
+                </label>
+              </p>
 
-            <h2 className="cp__h2" ref={headingRef} tabIndex={-1}>
-              {section.title}
-            </h2>
-            <p className="cp__lede">{nw(section.lede)}</p>
-            {section.note ? <p className="cp__note">{nw(section.note)}</p> : null}
+              <header className="cp__head">
+                <h2 className="cp__h2" ref={headingRef} tabIndex={-1}>
+                  {isReview ? 'Review and send' : section.title}
+                </h2>
+                {!isReview && section.minutes ? <span className="cp__est">About {section.minutes} min</span> : null}
+              </header>
+              <p className="cp__lede">{nw(isReview ? 'Read it over before it goes. Press Edit beside anything you want to change.' : section.lede)}</p>
+              {!isReview && section.note ? <p className="cp__note">{nw(section.note)}</p> : null}
 
+              {isReview
+                ? <ReviewView get={get} check={check} done={done} onEdit={go} />
+                : groups.map((g, gi) => (
+                    <section className="cp-group" key={`${g.title}-${gi}`}>
+                      {g.title ? <h3 className="cp-group__title">{g.title}</h3> : null}
+                      <div className="cp__fields">
+                        {g.fields.map((f) =>
+                          f.type === 'file' ? (
+                            <FileField
+                              key={f.id}
+                              f={f}
+                              files={files.filter((x) => x.field === f.id)}
+                              // eslint-disable-next-line react-hooks/refs -- an event handler: it only runs when files are chosen
+                              onAdd={(list) => addFiles(list, f)}
+                              onRemove={(key) => setFiles((l) => l.filter((x) => x.key !== key))}
+                            />
+                          ) : (
+                            // eslint-disable-next-line react-hooks/refs -- an event handler: it only runs when an answer changes
+                            <FieldView key={f.id} f={f} value={get(f.id) ?? emptyFor(f)} error={errors[f.id]} onChange={(v) => setAnswer(f, v)} />
+                          ),
+                        )}
+                      </div>
+                    </section>
+                  ))}
 
-            <div className="cp__fields">
-              {section.fields.map((f) =>
-                !isVisible(f, get) ? null : f.type === 'file' ? (
-                  <FileField
-                    key={f.id}
-                    f={f}
-                    files={files.filter((x) => x.field === f.id)}
-                    onAdd={(list) => addFiles(list, f)}
-                    onRemove={(key) => setFiles((l) => l.filter((x) => x.key !== key))}
-                  />
-                ) : (
-                  <FieldView key={f.id} f={f} value={get(f.id) ?? emptyFor(f)} error={errors[f.id]} onChange={(v) => setAnswer(f, v)} />
-                ),
-              )}
+              {isReview && TURNSTILE_KEY ? <Captcha onToken={setToken} /> : null}
+
+              {status === 'failed' ? (
+                <div className="cp__failed" role="alert">
+                  <p>{failure}</p>
+                  <p>
+                    If it keeps failing, write to <a href={`mailto:${site.email}`}>{site.email}</a>.{' '}
+                    <button type="button" className="cp__linkbtn" onClick={copyAnswers}>
+                      Copy my answers
+                    </button>{' '}
+                    to send them by email.
+                  </p>
+                  {copied ? <p role="status">{copied}</p> : null}
+                  <textarea id="cp-copy-box" className="cp__copybox" readOnly hidden aria-label="Your answers" />
+                </div>
+              ) : null}
             </div>
-
-            {isLast && TURNSTILE_KEY ? <Captcha onToken={setToken} /> : null}
-
-            {status === 'failed' ? (
-              <div className="cp__failed" role="alert">
-                <p>{failure}</p>
-                <p>
-                  If it keeps failing, write to <a href={`mailto:${site.email}`}>{site.email}</a>.{' '}
-                  <button type="button" className="cp__linkbtn" onClick={copyAnswers}>
-                    Copy my answers
-                  </button>{' '}
-                  to send them by email.
-                </p>
-                {copied ? <p role="status">{copied}</p> : null}
-                <textarea id="cp-copy-box" className="cp__copybox" readOnly hidden aria-label="Your answers" />
-              </div>
-            ) : null}
 
             <div className="cp__actions">
               <button type="button" className="pill pill--outline" onClick={() => go(step - 1)} disabled={step === 0}>
@@ -576,7 +668,17 @@ export default function ClientProfileApp() {
                 {hint}
               </span>
               <button type="submit" className="pill pill--ink" disabled={status === 'sending'}>
-                {status === 'sending' ? 'Sending…' : isLast ? 'Send profile' : 'Next'}
+                {status === 'sending' ? (
+                  'Sending…'
+                ) : isReview ? (
+                  'Send profile'
+                ) : step === total - 1 ? (
+                  'Review your answers'
+                ) : (
+                  <>
+                    Next<span className="cp__next-to">: {sections[step + 1].title}</span>
+                  </>
+                )}
                 {status !== 'sending' && (
                   <span className="pill__arrow" aria-hidden="true">
                     <Arrow />
@@ -587,6 +689,71 @@ export default function ClientProfileApp() {
           </form>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ review */
+
+/** Everything answered, section by section, with a way back to each one, before it is sent. */
+function ReviewView({
+  get,
+  check,
+  done,
+  onEdit,
+}: {
+  get: Getter;
+  check: (s: Section) => Errors;
+  done: KitFile[];
+  onEdit: (index: number) => void;
+}) {
+  const problems = sections.map((x, i) => ({ x, i, n: Object.keys(check(x)).length })).filter((p) => p.n > 0);
+  return (
+    <div className="cp-rev">
+      {problems.length ? (
+        <div className="cp-rev__todo" role="alert">
+          <b>A few answers are still needed</b>
+          <ul>
+            {problems.map((p) => (
+              <li key={p.x.id}>
+                <button type="button" className="cp__linkbtn" onClick={() => onEdit(p.i)}>
+                  {p.x.title}
+                </button>{' '}
+                ({p.n} to fill in)
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {sections.map((x, i) => {
+        const rows = x.fields.filter((f) => f.type !== 'file' && isVisible(f, get) && hasValue(get(f.id)));
+        const sent = done.filter((d) => x.fields.some((f) => f.id === d.field));
+        if (!rows.length && !sent.length) return null;
+        return (
+          <section className="cp-group cp-rev__sec" key={x.id}>
+            <div className="cp-rev__top">
+              <h3 className="cp-group__title">{x.title}</h3>
+              <button type="button" className="cp__linkbtn" onClick={() => onEdit(i)}>
+                Edit
+              </button>
+            </div>
+            <dl className="cp-rev__list">
+              {rows.map((f) => (
+                <div key={f.id}>
+                  <dt>{f.label}</dt>
+                  <dd>{formatAnswer(f, get(f.id))}</dd>
+                </div>
+              ))}
+              {sent.length ? (
+                <div>
+                  <dt>Files</dt>
+                  <dd>{sent.map((d) => d.name).join(', ')}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -612,23 +779,35 @@ function FieldView({ f, value, error, onChange }: { f: Field; value: Answer; err
   if (f.type === 'radio' || f.type === 'checks') {
     const multi = f.type === 'checks';
     const picked = multi ? (value as string[]) : [value as string];
+    // A few short options read best as one segmented control, longer ones as tiles, many-of-many as chips.
+    const kind = multi ? 'chips' : f.opts!.length <= 4 && f.opts!.every((o) => o.length <= 24) ? 'seg' : 'tiles';
+    const pick = (o: string, checked: boolean) => onChange(multi ? (checked ? [...picked, o] : picked.filter((x) => x !== o)) : o);
     return (
       <fieldset className={`cp-q${sub}${error ? ' is-invalid' : ''}`} data-field={f.id} aria-describedby={error ? errId : undefined}>
         <legend className="cp-q__label">{label}</legend>
         {help}
-        <div className="cp-chips">
-          {f.opts!.map((o) => (
-            <label className="cp-chip" key={o}>
-              <input
-                type={multi ? 'checkbox' : 'radio'}
-                name={f.id}
-                value={o}
-                checked={picked.includes(o)}
-                onChange={(e) => onChange(multi ? (e.target.checked ? [...picked, o] : picked.filter((x) => x !== o)) : o)}
-              />
-              <span>{o}</span>
-            </label>
-          ))}
+        <div className={`cp-${kind}`}>
+          {f.opts!.map((o) => {
+            const m = /^(.*?) \((.*)\)$/.exec(o);
+            const input = <input type={multi ? 'checkbox' : 'radio'} name={f.id} value={o} checked={picked.includes(o)} onChange={(e) => pick(o, e.target.checked)} />;
+            if (kind === 'tiles') {
+              return (
+                <label className="cp-tile" key={o}>
+                  {input}
+                  <span className="cp-tile__in">
+                    <b>{m ? m[1] : o}</b>
+                    {m ? <small>{m[2]}</small> : null}
+                  </span>
+                </label>
+              );
+            }
+            return (
+              <label className={kind === 'seg' ? 'cp-seg__opt' : 'cp-chip'} key={o}>
+                {input}
+                <span>{o}</span>
+              </label>
+            );
+          })}
         </div>
         {err}
       </fieldset>
