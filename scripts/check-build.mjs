@@ -66,6 +66,31 @@ for (const slug of hidden) {
   if (!netlify.includes(`for = "/${slug}/*"`)) errors.push(`/${slug}/: no X-Robots-Tag header in netlify.toml`);
 }
 
+// Private pages that are not at the root: same four rules as a hidden page, checked by their own path. A page
+// nobody can find is still a page, and this is the check that proves it stayed that way.
+const privatePages = ['pitch/san-marzano-mongolia', 'client/mado-onna'];
+
+for (const path of privatePages) {
+  const page = join(OUT, path, 'index.html');
+  let html = '';
+  try {
+    html = readFileSync(page, 'utf8');
+  } catch {
+    errors.push(`/${path}/: private page was not built`);
+    continue;
+  }
+  if (!/<meta name="robots" content="noindex, nofollow"/.test(html)) errors.push(`/${path}/: missing noindex`);
+  if (sitemap.includes(`/${path}/`)) errors.push(`/${path}/: listed in sitemap.xml`);
+  if (llms.includes(`/${path}/`)) errors.push(`/${path}/: listed in llms.txt`);
+  const top = `/${path.split('/')[0]}/*`;
+  if (!netlify.includes(`for = "${top}"`)) errors.push(`/${path}/: no X-Robots-Tag header in netlify.toml for ${top}`);
+  for (const file of files.filter((f) => f.endsWith('.html') && !relative(OUT, f).startsWith(`${path}/`))) {
+    if (new RegExp(`href="/${path}/?["?#]`).test(readFileSync(file, 'utf8'))) {
+      errors.push(`${relative(OUT, file)}: links to private page /${path}/`);
+    }
+  }
+}
+
 if (/thank-you/.test(sitemap)) errors.push('sitemap.xml: lists a thank-you page');
 
 if (errors.length) {

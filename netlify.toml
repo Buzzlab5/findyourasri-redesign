@@ -44,6 +44,16 @@
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
+  for = "/client/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/portal-data/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
   for = "/pitch-data/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"

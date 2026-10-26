@@ -1,0 +1,474 @@
+/*
+ * The private client page (components/portal/PortalApp.tsx), in the look of the Asri proposals and decks: a warm
+ * near-black ground, gold hairlines, a Didone display face, Avenir Next for text, square corners, and one cream
+ * reading section. Everything is scoped under .po and .po-lock so nothing leaks into the site.
+ */
+.po,
+.po-lock {
+  --po-ground: #0c0a08;
+  --po-panel: #14110d;
+  --po-cream: #f3eee5;
+  --po-ink: #f2ece2;
+  --po-ink-2: rgba(242, 236, 226, 0.78);
+  --po-ink-3: rgba(242, 236, 226, 0.55);
+  --po-dark-ink: #1b1712;
+  --po-dark-ink-2: #4f463b;
+  --po-dark-ink-3: #857b6b;
+  --po-gold: #c9a063;
+  --po-gold-2: #e6c88f;
+  --po-line: rgba(201, 160, 99, 0.45);
+  --po-hair: rgba(242, 236, 226, 0.14);
+  --po-display: var(--font-display, Didot, 'Bodoni 72', 'Bodoni Moda', Georgia, serif);
+  --po-text: 'Avenir Next', var(--font-nunito), 'Nunito Sans', system-ui, sans-serif;
+  --po-max: 1040px;
+  background: var(--po-ground);
+  color: var(--po-ink);
+  font: 400 17px/1.65 var(--po-text);
+}
+.po *,
+.po-lock * {
+  box-sizing: border-box;
+}
+.po-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.po-in {
+  width: min(100%, var(--po-max));
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 40px);
+}
+
+/* ---------------------------------------------------------------- the lock */
+.po-lock {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 16px;
+  background: radial-gradient(120% 90% at 50% 0%, #241c14 0%, var(--po-ground) 62%);
+}
+.po-lock-box {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 14px;
+  text-align: center;
+}
+.po-lock-mark {
+  width: 112px;
+  margin: 0 auto 10px;
+  display: block;
+  height: auto;
+  filter: sepia(0.3);
+}
+.po-lock h1 {
+  margin: 0;
+  font: 400 clamp(28px, 5vw, 36px) / 1.1 var(--po-display);
+}
+.po-lock-lede {
+  margin: 0 0 6px;
+  color: var(--po-ink-2);
+  font-size: 15px;
+}
+.po-lock input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--po-line);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--po-ink);
+  font: 400 16px/1.4 var(--po-text);
+}
+.po-lock input:focus {
+  outline: 2px solid var(--po-gold-2);
+  outline-offset: 1px;
+}
+.po-lock button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 22px;
+  border: 1px solid var(--po-gold);
+  border-radius: 0;
+  background: var(--po-gold);
+  color: #0c0a08;
+  font: 500 13px/1 var(--po-text);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.po-lock button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.po-err {
+  margin: 2px 0 0;
+  color: var(--po-gold-2);
+  font-size: 14px;
+}
+
+/* -------------------------------------------------------------- the page */
+.po-kick {
+  margin: 0 0 14px;
+  font: 500 11px/1.5 var(--po-text);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--po-gold);
+}
+.po-num {
+  color: var(--po-ink-3);
+  margin-right: 14px;
+}
+.po-cover {
+  padding: clamp(56px, 10vw, 108px) 0 clamp(36px, 6vw, 64px);
+  background:
+    radial-gradient(90% 70% at 15% 0%, rgba(201, 160, 99, 0.1) 0%, rgba(201, 160, 99, 0) 60%),
+    var(--po-ground);
+  border-bottom: 1px solid var(--po-line);
+}
+.po-title {
+  margin: 0 0 20px;
+  font: 400 clamp(44px, 10vw, 92px) / 0.98 var(--po-display);
+  letter-spacing: 0.01em;
+}
+.po-lede {
+  margin: 0;
+  max-width: 54ch;
+  font-size: clamp(17px, 2.1vw, 20px);
+  color: var(--po-ink-2);
+}
+.po-stamp {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 30px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--po-ink-3);
+}
+.po-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--po-gold-2);
+  box-shadow: 0 0 0 4px rgba(230, 200, 143, 0.16);
+}
+.po-dot {
+  color: var(--po-line);
+}
+.po-sec {
+  padding: clamp(44px, 7vw, 86px) 0;
+  border-bottom: 1px solid var(--po-hair);
+}
+.po-head {
+  margin-bottom: clamp(24px, 3.4vw, 38px);
+}
+.po-head .po-kick {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+.po-sub {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--po-ink-2);
+  font-size: 16px;
+}
+.po h3 {
+  margin: 0 0 4px;
+  font: 500 18px/1.35 var(--po-text);
+  letter-spacing: 0.01em;
+}
+.po-note {
+  display: block;
+  color: var(--po-ink-3);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* the four live numbers */
+.po-tiles {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  background: var(--po-line);
+  border: 1px solid var(--po-line);
+}
+.po-tile {
+  background: var(--po-panel);
+  padding: 26px 22px 22px;
+}
+.po-big {
+  display: block;
+  font: 400 clamp(40px, 6vw, 56px) / 1 var(--po-display);
+  color: var(--po-gold-2);
+  margin-bottom: 12px;
+}
+.po-what {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* the monthly package */
+.po-cards {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.po-card {
+  border: 1px solid var(--po-hair);
+  border-top: 1px solid var(--po-line);
+  background: linear-gradient(180deg, rgba(201, 160, 99, 0.06), rgba(201, 160, 99, 0));
+  padding: 22px 20px;
+}
+.po-card-big {
+  display: block;
+  font: 400 34px/1 var(--po-display);
+  color: var(--po-gold);
+  margin-bottom: 10px;
+}
+.po-card-what {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* hairline records: what is built, how you hear from us */
+.po-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--po-hair);
+}
+.po-list li {
+  display: grid;
+  grid-template-columns: 104px 1fr auto;
+  gap: 16px;
+  align-items: start;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--po-hair);
+}
+.po-list-rows li {
+  grid-template-columns: 150px 1fr;
+}
+.po-when {
+  font: 500 12px/1.6 var(--po-text);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--po-gold);
+}
+.po-line {
+  font-size: 16px;
+  color: var(--po-ink-2);
+}
+.po-line strong {
+  color: var(--po-ink);
+  font-weight: 500;
+}
+.po-pill {
+  font: 500 10px/1 var(--po-text);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+  border: 1px solid var(--po-hair);
+  color: var(--po-ink-3);
+  white-space: nowrap;
+}
+.po-pill-gold {
+  border-color: var(--po-line);
+  color: var(--po-gold-2);
+}
+
+/* the cream reading page: the countdown */
+.po-cream {
+  background: var(--po-cream);
+  color: var(--po-dark-ink);
+  border-bottom: 1px solid rgba(165, 126, 67, 0.4);
+}
+.po-cream .po-kick {
+  color: #8c6a35;
+}
+.po-cream .po-num,
+.po-cream .po-sub {
+  color: var(--po-dark-ink-2);
+}
+.po-cream .po-note {
+  color: var(--po-dark-ink-3);
+}
+.po-phases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(27, 23, 18, 0.14);
+}
+.po-phases li {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 18px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(27, 23, 18, 0.14);
+}
+.po-phase-n {
+  font: 400 30px/1 var(--po-display);
+  color: #a57e43;
+}
+.po-phase-when {
+  margin: 0 0 6px;
+  font: 500 12px/1.5 var(--po-text);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8c6a35;
+}
+.po-phase-does {
+  margin: 0;
+  color: var(--po-dark-ink-2);
+  font-size: 16px;
+}
+.po-quote {
+  margin: 30px 0 0;
+  padding: 20px 24px;
+  border-left: 2px solid var(--po-gold);
+  background: rgba(201, 160, 99, 0.07);
+  font-size: 16px;
+  color: inherit;
+  max-width: 76ch;
+}
+.po-cream .po-quote {
+  background: rgba(165, 126, 67, 0.08);
+  border-left-color: #a57e43;
+  color: var(--po-dark-ink-2);
+}
+
+/* what we need from you */
+.po-asks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--po-hair);
+}
+.po-asks li {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 18px;
+  align-items: start;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--po-hair);
+}
+.po-ask-n {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--po-line);
+  border-radius: 50%;
+  color: var(--po-gold);
+  font-size: 14px;
+}
+.po-asks p {
+  margin: 0;
+  color: var(--po-ink-2);
+  font-size: 16px;
+}
+.po-stop {
+  margin-top: 6px !important;
+  color: var(--po-ink-3) !important;
+  font-size: 14px !important;
+}
+.po-ask-done .po-ask-n {
+  color: var(--po-ink-3);
+  border-color: var(--po-hair);
+}
+.po-ask-done h3 {
+  color: var(--po-ink-3);
+}
+
+/* how we show it is working */
+.po-layers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--po-hair);
+}
+.po-layers li {
+  display: grid;
+  grid-template-columns: 1fr minmax(200px, 42%);
+  gap: 20px;
+  align-items: start;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--po-hair);
+}
+.po-read,
+.po-unread {
+  margin: 0;
+  font-size: 15px;
+}
+.po-read {
+  color: var(--po-gold-2);
+}
+.po-unread {
+  color: var(--po-ink-3);
+}
+
+/* still open */
+.po-open {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+.po-open li {
+  border: 1px solid var(--po-hair);
+  border-left: 2px solid var(--po-line);
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.015);
+}
+.po-open p {
+  margin: 0;
+  color: var(--po-ink-2);
+  font-size: 15px;
+}
+
+/* the footer */
+.po-foot {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(56px, 8vw, 96px);
+  background: #070605;
+}
+.po-foot p {
+  margin: 0 0 14px;
+  max-width: 78ch;
+  color: var(--po-ink-2);
+  font-size: 15px;
+}
+.po-foot strong {
+  color: var(--po-ink);
+  font-weight: 500;
+}
+
+@media (max-width: 620px) {
+  .po-list li,
+  .po-list-rows li {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .po-list li .po-pill {
+    justify-self: start;
+  }
+  .po-asks li {
+    grid-template-columns: 36px 1fr;
+  }
+  .po-asks li .po-pill {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .po-layers li {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
