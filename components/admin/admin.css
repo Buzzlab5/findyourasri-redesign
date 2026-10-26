@@ -81,3 +81,6 @@
   .ad__todo li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .ad__tag { justify-self: start; }
 }
+
+.ad__link[disabled] { opacity: .6; cursor: default; }
+.ad__head .ad__link { align-self: end; margin-bottom: 6px; }

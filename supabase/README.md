@@ -70,32 +70,38 @@ selesai atau belum di-redeploy.
 
 Semua profile yang masuk bisa dilihat tim di `findyourasri.com/admin/`: daftar
 semua klien (bisa dicari), halaman lengkap tiap klien (follow-up tim, semua
-jawaban per section, warna brand), dan file yang di-upload (gambar tampil
-sebagai thumbnail, semua file bisa dibuka). Ada tombol untuk email klien, buka
+jawaban per section, warna brand), dan file yang di-upload. File tampil tepat di
+bawah pertanyaan yang meminta upload-nya (gambar sebagai thumbnail), dan juga
+terkumpul per kategori di bagian **All files** paling bawah. Ada tombol untuk email klien, buka
 WhatsApp, dan salin semua jawaban sebagai teks.
 
 Halaman ini **berisi data klien, jadi dikunci dengan login**. Yang bisa masuk
-hanya email yang kamu daftarkan di langkah 3 di bawah.
+hanya email yang kamu daftarkan di langkah 4 di bawah.
 
 ### Cara pasang (semua lewat dashboard)
 
-1. **Perbarui function.** Supabase, **Edge Functions**, klik `client-profile`,
+1. **Tambah satu kolom di database.** **SQL Editor**, **New query**, paste isi
+   `supabase/migrations/20261027000000_client_files_field.sql`, lalu **Run**.
+   Kolom ini mencatat file diunggah dari pertanyaan yang mana, supaya halaman
+   admin bisa menampilkan file tepat di bawah pertanyaannya. Aman dijalankan
+   sebelum atau sesudah langkah 2: function tetap jalan walaupun kolomnya belum ada.
+2. **Perbarui function.** Supabase, **Edge Functions**, klik `client-profile`,
    tab **Code**. Hapus isinya, paste seluruh `supabase/functions/client-profile/index.ts`
    yang baru, lalu **Deploy**. Toggle JWT tetap **OFF**.
-2. **Buat akun admin.** Menu **Authentication**, lalu **Users**, lalu
+3. **Buat akun admin.** Menu **Authentication**, lalu **Users**, lalu
    **Add user**, lalu **Create new user**. Isi email dan password, dan
    **centang "Auto Confirm User"**. Ulangi untuk tiap orang di tim (Hannah, Tony,
    dst). Simpan passwordnya di password manager.
-3. **Daftarkan siapa yang boleh masuk.** **Edge Functions**, lalu **Secrets**,
+4. **Daftarkan siapa yang boleh masuk.** **Edge Functions**, lalu **Secrets**,
    tambahkan `ADMIN_EMAILS` berisi email-email tadi dipisah koma, misalnya
    `kamu@gmail.com,hannah@asri.com`. Setelah itu **buka lagi function-nya dan
    klik Deploy sekali lagi**, supaya nilai baru terbaca.
-4. **Tutup pendaftaran umum (disarankan).** **Authentication**, lalu
+5. **Tutup pendaftaran umum (disarankan).** **Authentication**, lalu
    **Sign In / Providers** (namanya bisa sedikit beda), matikan
    **Allow new users to sign up**. Ini lapisan tambahan. Kuncinya yang asli
-   adalah daftar di langkah 3: akun yang tidak ada di daftar itu tidak akan
+   adalah daftar di langkah 4: akun yang tidak ada di daftar itu tidak akan
    dikirimi data apa pun.
-5. **Push kode site** ke production, lalu buka `findyourasri.com/admin/` dan
+6. **Push kode site** ke production, lalu buka `findyourasri.com/admin/` dan
    masuk.
 
 Tidak ada pengaturan baru di Vercel. Alamat function yang sudah ada dipakai ulang.

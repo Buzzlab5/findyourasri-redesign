@@ -26,6 +26,11 @@ import './admin.css';
 
 const API = process.env.NEXT_PUBLIC_CLIENT_PROFILE_API ?? '';
 const STORE = 'asri-admin-session';
+const CONFIG_STORE = 'asri-admin-config';
+/** A profile opened in the last 20 minutes is shown again at once. Its file links last an hour. */
+const DETAIL_TTL = 20 * 60_000;
+/** Coming back to the list shows it as it was, and refreshes it quietly if it is older than this. */
+const LIST_TTL = 60_000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Config = { url: string; anonKey: string };
@@ -47,9 +52,25 @@ type Profile = Row & {
   followups: { kind: string; text: string }[];
   source: Record<string, string>;
 };
-type FileRow = { path: string; name: string; size: number; category: string; url: string | null };
+type FileRow = { path: string; name: string; size: number; category: string; field?: string | null; url: string | null; thumb?: string | null };
+type Detail = { profile: Profile; files: FileRow[] };
+
+/** For files saved before the field was recorded: the question their category most likely came from. */
+const CATEGORY_FIELD: Record<string, string> = {
+  'Brand guidelines': 'guidelines_file',
+  Logo: 'logo_files',
+  Photos: 'photo_upload',
+  Renderings: 'renders_upload',
+  'Menu or price list': 'other_upload',
+  'Press kit': 'other_upload',
+  Other: 'other_upload',
+};
+const fieldOf = (f: FileRow) => f.field || CATEGORY_FIELD[f.category] || '';
 
 class SignInError extends Error {}
+
+/** The clock, read outside the component body (it is only ever used in event handlers and loaders). */
+const now = () => Date.now();
 
 const date = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 const megabytes = (n: number) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
@@ -95,7 +116,12 @@ export default function AdminApp() {
   const [copied, setCopied] = useState('');
   const [email, setEmail] = useState('');
   const [ready, setReady] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const config = useRef<Config | null>(null);
+  const configLoad = useRef<Promise<Config | null> | null>(null);
+  const listAt = useRef(0);
+  const details = useRef(new Map<string, Detail & { at: number }>());
+  const inflight = useRef(new Map<string, Promise<Detail & { at: number }>>());
   const session = useRef<Session | null>(null);
 
   function remember(next: Session | null) {
@@ -111,6 +137,9 @@ export default function AdminApp() {
 
   function signOut(why = '') {
     remember(null);
+    details.current.clear();
+    inflight.current.clear();
+    listAt.current = 0;
     setRows(null);
     setDetail(null);
     setSelected('');
@@ -122,7 +151,8 @@ export default function AdminApp() {
   async function freshToken() {
     const s = session.current;
     if (!s) throw new SignInError('Sign in to continue.');
-    if (s.expires - 60_000 > Date.now()) return s.access;
+    if (s.expires - 60_000 > now()) return s.access;
+    if (!config.current) await loadConfig();
     if (!config.current) throw new SignInError('Sign in to continue.');
     const next = await tokenRequest(config.current, 'refresh_token', { refresh_token: s.refresh });
     remember({ ...next, email: next.email || s.email });
@@ -139,30 +169,88 @@ export default function AdminApp() {
     return data;
   }
 
-  async function loadList() {
+  /** The project's sign-in address, from the function. Asked once, and remembered in this browser for next time. */
+  function loadConfig(): Promise<Config | null> {
+    if (!configLoad.current) {
+      configLoad.current = post({ action: 'config' })
+        .then(({ data }) => {
+          if (!data.url || !data.anonKey) return null;
+          config.current = data as Config;
+          setReady(true);
+          try {
+            localStorage.setItem(CONFIG_STORE, JSON.stringify(data));
+          } catch {
+            // Fine: it is fetched again next time.
+          }
+          return config.current;
+        })
+        .catch(() => null);
+    }
+    return configLoad.current;
+  }
+
+  /** `quiet` refreshes behind the scenes: the list on screen stays, with no flash and no error banner. */
+  async function loadList(quiet = false) {
+    if (quiet) setRefreshing(true);
     try {
       const data = await admin('admin-list');
       setRows(data.profiles as Row[]);
+      listAt.current = now();
       setMessage('');
     } catch (e) {
       if (e instanceof SignInError) signOut(e.message);
-      else setMessage('The list did not load. Try again in a moment.');
+      else if (!quiet) setMessage('The list did not load. Try again in a moment.');
+    } finally {
+      setRefreshing(false);
     }
+  }
+
+  /** One profile, from memory when it was opened recently, and never asked for twice at the same time. */
+  function fetchDetail(id: string): Promise<Detail & { at: number }> {
+    const hit = details.current.get(id);
+    if (hit && now() - hit.at < DETAIL_TTL) return Promise.resolve(hit);
+    let pending = inflight.current.get(id);
+    if (!pending) {
+      pending = admin('admin-get', { id })
+        .then((data) => {
+          const value = { profile: data.profile as Profile, files: data.files as FileRow[], at: now() };
+          details.current.set(id, value);
+          return value;
+        })
+        .finally(() => inflight.current.delete(id));
+      inflight.current.set(id, pending);
+    }
+    return pending;
   }
 
   async function loadDetail(id: string) {
+    const hit = details.current.get(id);
+    const stillOpen = () => window.location.hash.replace('#', '') === id;
+    if (hit && now() - hit.at < DETAIL_TTL) {
+      setDetail(hit);
+      setMessage('');
+      return;
+    }
     setDetail(null);
     try {
-      const data = await admin('admin-get', { id });
-      setDetail({ profile: data.profile as Profile, files: data.files as FileRow[] });
-      setMessage('');
+      const value = await fetchDetail(id);
+      if (stillOpen()) {
+        setDetail(value);
+        setMessage('');
+      }
     } catch (e) {
       if (e instanceof SignInError) signOut(e.message);
-      else setMessage('That profile did not load. Go back and try again.');
+      else if (stillOpen()) setMessage('That profile did not load. Go back and try again.');
     }
   }
 
-  // Start: read the project's sign-in address from the function, and pick up a saved session.
+  /** Starts loading a profile while the pointer is still on its row, so the click shows it at once. */
+  function prefetch(id: string) {
+    fetchDetail(id).catch(() => {});
+  }
+
+  // Start: pick up a saved session and show the list straight away. The sign-in address is read from
+  // this browser's memory when it is there, so nothing waits on the network for it.
   useEffect(() => {
     let live = true;
     (async () => {
@@ -172,26 +260,31 @@ export default function AdminApp() {
         return;
       }
       try {
-        const { data } = await post({ action: 'config' });
-        if (!data.url || !data.anonKey) {
-          setMessage('The server has not been updated for this page yet.');
-          setPhase('out');
-          return;
+        const cached = JSON.parse(localStorage.getItem(CONFIG_STORE) ?? 'null') as Config | null;
+        if (cached?.url && cached?.anonKey) {
+          config.current = cached;
+          setReady(true);
         }
-        config.current = data as Config;
-        setReady(true);
-        const saved = JSON.parse(localStorage.getItem(STORE) ?? 'null') as Session | null;
-        if (saved && live) {
-          remember(saved);
-          setPhase('in');
-          await loadList();
-        } else if (live) setPhase('out');
       } catch {
-        if (live) {
-          setMessage('Could not reach the server. Check your connection and reload.');
-          setPhase('out');
-        }
+        // No saved address: it is fetched below.
       }
+      const pending = loadConfig();
+      let saved: Session | null = null;
+      try {
+        saved = JSON.parse(localStorage.getItem(STORE) ?? 'null') as Session | null;
+      } catch {
+        // No saved session.
+      }
+      if (saved && live) {
+        remember(saved);
+        setPhase('in');
+        await loadList();
+        return;
+      }
+      if (!config.current && !(await pending) && live) {
+        setMessage('The server could not be reached, or has not been updated for this page yet. Reload to try again.');
+      }
+      if (live) setPhase('out');
     })();
     return () => {
       live = false;
@@ -216,7 +309,6 @@ export default function AdminApp() {
 
   useEffect(() => {
     if (phase !== 'in' || !selected) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads the profile named in the address
     loadDetail(selected);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when the chosen profile changes
   }, [phase, selected]);
@@ -258,6 +350,7 @@ export default function AdminApp() {
     history.pushState(null, '', window.location.pathname + window.location.search);
     setSelected('');
     setDetail(null);
+    if (now() - listAt.current > LIST_TTL) loadList(true);
   }
 
   async function copyText() {
@@ -329,7 +422,11 @@ export default function AdminApp() {
           All profiles
         </button>
         {message ? <p className="ad__error" role="alert">{message}</p> : null}
-        {detail ? <Detail profile={detail.profile} files={detail.files} onCopy={copyText} copied={copied} /> : message ? null : <p className="ad__muted">Loading…</p>}
+        {detail && detail.profile.id === selected ? (
+          <Detail profile={detail.profile} files={detail.files} onCopy={copyText} copied={copied} />
+        ) : message ? null : (
+          <Opening row={rows?.find((r) => r.id === selected)} />
+        )}
       </div>
     );
   }
@@ -339,6 +436,9 @@ export default function AdminApp() {
       {top}
       <div className="ad__head">
         <h1 className="ad__h1">Client profiles</h1>
+        <button type="button" className="ad__link" onClick={() => loadList(true)} disabled={refreshing}>
+          {refreshing ? 'Refreshing…' : 'Refresh'}
+        </button>
         <label className="ad__search">
           <span className="ad__sr">Search profiles</span>
           <input type="search" placeholder="Search by business, name or email" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -369,7 +469,7 @@ export default function AdminApp() {
               </thead>
               <tbody>
                 {shown.map((r) => (
-                  <tr key={r.id} onClick={() => open(r.id)}>
+                  <tr key={r.id} onClick={() => open(r.id)} onPointerEnter={() => prefetch(r.id)}>
                     <td>
                       <a href={`#${r.id}`} className="ad__name" onClick={(e) => e.stopPropagation()}>
                         {r.business_name}
@@ -448,7 +548,7 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
       ) : null}
 
       {sections.map((s) => {
-        const rows = s.fields.filter((f) => f.type !== 'file' && hasValue(answers[f.id] as Answer));
+        const rows = s.fields.filter((f) => (f.type === 'file' ? files.some((x) => fieldOf(x) === f.id) : hasValue(answers[f.id] as Answer)));
         if (!rows.length) return null;
         return (
           <section className="ad__block" key={s.id}>
@@ -458,7 +558,13 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
                 <div key={f.id}>
                   <dt>{f.label}</dt>
                   <dd>
-                    {f.id === 'colors' ? <Swatches value={String(answers[f.id])} /> : <Text value={formatAnswer(f, answers[f.id] as Answer)} />}
+                    {f.type === 'file' ? (
+                      <FileItems files={files.filter((x) => fieldOf(x) === f.id)} />
+                    ) : f.id === 'colors' ? (
+                      <Swatches value={String(answers[f.id])} />
+                    ) : (
+                      <Text value={formatAnswer(f, answers[f.id] as Answer)} />
+                    )}
                   </dd>
                 </div>
               ))}
@@ -484,32 +590,14 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
       ) : null}
 
       <section className="ad__block">
-        <h2 className="ad__h2">Files</h2>
+        <h2 className="ad__h2">All files</h2>
         {files.length === 0 ? (
           <p className="ad__muted">No files were uploaded. Any links the client pasted are in the answers above.</p>
         ) : (
           categories.map((c) => (
             <div key={c} className="ad__cat">
               <h3 className="ad__h3">{c}</h3>
-              <ul className="ad__files">
-                {files
-                  .filter((f) => f.category === c)
-                  .map((f) => (
-                    <li key={f.path}>
-                      {f.url && isImage(f.name) ? <img src={f.url} alt="" className="ad__thumb" loading="lazy" /> : <span className="ad__thumb ad__thumb--blank" aria-hidden="true" />}
-                      <span className="ad__fname">
-                        {f.url ? (
-                          <a href={f.url} target="_blank" rel="noopener noreferrer">
-                            {f.name}
-                          </a>
-                        ) : (
-                          f.name
-                        )}
-                        <span className="ad__sub">{megabytes(f.size)}</span>
-                      </span>
-                    </li>
-                  ))}
-              </ul>
+              <FileItems files={files.filter((f) => f.category === c)} />
             </div>
           ))
         )}
@@ -520,6 +608,60 @@ function Detail({ profile, files, onCopy, copied }: { profile: Profile; files: F
         <p className="ad__muted ad__note">Came from {Object.entries(profile.source).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(', ')}.</p>
       ) : null}
     </article>
+  );
+}
+
+/** What is already known about a profile while the rest of it loads. */
+function Opening({ row }: { row?: Row }) {
+  return (
+    <article className="ad__detail">
+      <h1 className="ad__h1">{row?.business_name ?? 'Loading…'}</h1>
+      {row ? (
+        <p className="ad__muted">
+          Received {date(row.submitted_at)} from {row.contact_name}. Reference {ref(row.id)}.
+        </p>
+      ) : null}
+      <p className="ad__muted ad__note" role="status">
+        Loading the answers and files…
+      </p>
+    </article>
+  );
+}
+
+/** Files as thumbnails (images) or plain names, each linking to the file. */
+function FileItems({ files }: { files: FileRow[] }) {
+  return (
+    <ul className="ad__files">
+      {files.map((f) => (
+        <li key={f.path}>
+          {f.url && isImage(f.name) ? (
+            <img
+              src={f.thumb ?? f.url}
+              alt=""
+              className="ad__thumb"
+              loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                // The small version could not be made: fall back to the full file.
+                if (f.url && e.currentTarget.src !== f.url) e.currentTarget.src = f.url;
+              }}
+            />
+          ) : (
+            <span className="ad__thumb ad__thumb--blank" aria-hidden="true" />
+          )}
+          <span className="ad__fname">
+            {f.url ? (
+              <a href={f.url} target="_blank" rel="noopener noreferrer">
+                {f.name}
+              </a>
+            ) : (
+              f.name
+            )}
+            <span className="ad__sub">{megabytes(f.size)}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

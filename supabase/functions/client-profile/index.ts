@@ -244,6 +244,8 @@ async function submit(req: Request, body: Record<string, unknown>, ipHash: strin
       name: str(f.name, 255) || path.split('/').pop()!,
       size: sizes.get(path) ?? 0,
       category: CATEGORIES.has(category) ? category : 'Other',
+      // Which upload question it was added under, so the admin page can show it in place.
+      field: KEY.test(str(f.field, 60)) ? str(f.field, 60) : null,
     };
   });
 
@@ -274,7 +276,11 @@ async function submit(req: Request, body: Record<string, unknown>, ipHash: strin
   if (profileError) throw profileError;
 
   if (fileRows.length) {
-    const { error: filesError } = await db.from('client_files').insert(fileRows);
+    let { error: filesError } = await db.from('client_files').insert(fileRows);
+    if (filesError && /field/i.test(filesError.message ?? '')) {
+      // The `field` column has not been added yet (run the SQL for it): save without it rather than fail the client.
+      ({ error: filesError } = await db.from('client_files').insert(fileRows.map(({ field: _field, ...rest }) => rest)));
+    }
     if (filesError) {
       await db.from('client_profiles').delete().eq('id', draftId);
       throw filesError;
@@ -308,45 +314,92 @@ const ADMINS = (Deno.env.get('ADMIN_EMAILS') ?? '')
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
+// A token that checked out is remembered for a few minutes (or until it expires), so the admin page's next
+// requests skip the round trip to the sign-in service. The list of admin emails is still checked every time.
+const verified = new Map<string, { email: string; until: number }>();
+
+function tokenExpiry(token: string) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof payload.exp === 'number' ? payload.exp * 1000 : 0;
+  } catch {
+    return 0;
+  }
+}
+
 /** Who is calling: the signed-in person behind the token, and only if they are on the admin list. */
 async function requireAdmin(req: Request) {
   const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
   if (!token) throw new Fail(401, 'sign_in');
   if (!ADMINS.length) throw new Fail(403, 'admin_not_configured');
-  const { data, error } = await db.auth.getUser(token);
-  const email = data?.user?.email?.toLowerCase();
-  if (error || !email) throw new Fail(401, 'sign_in');
+
+  let email = verified.get(token)?.until ?? 0 > Date.now() ? verified.get(token)!.email : '';
+  if (!email) {
+    const { data, error } = await db.auth.getUser(token);
+    email = data?.user?.email?.toLowerCase() ?? '';
+    if (error || !email) throw new Fail(401, 'sign_in');
+    if (verified.size > 50) verified.clear();
+    verified.set(token, { email, until: Math.min(Date.now() + 5 * 60_000, tokenExpiry(token) || 0) });
+  }
   if (!ADMINS.includes(email)) throw new Fail(403, 'not_admin');
   return email;
 }
 
 async function adminList(req: Request) {
-  await requireAdmin(req);
-  const { data, error } = await db
-    .from('client_profiles')
-    .select('id,business_name,contact_name,contact_email,country,sector,services,budget,status,submitted_at,client_files(count)')
-    .order('submitted_at', { ascending: false })
-    .limit(500);
+  // The token check and the read run together: a refused caller is rejected before anything is returned.
+  const [, { data, error }] = await Promise.all([
+    requireAdmin(req),
+    db
+      .from('client_profiles')
+      .select('id,business_name,contact_name,contact_email,country,sector,services,budget,status,submitted_at,client_files(count)')
+      .order('submitted_at', { ascending: false })
+      .limit(500),
+  ]);
   if (error) throw error;
   return json(req, 200, { profiles: data });
 }
 
+const IMAGE = /\.(png|jpe?g|webp|gif)$/i;
+
 async function adminGet(req: Request, body: Record<string, unknown>) {
-  await requireAdmin(req);
   const id = str(body.id, 40);
-  if (!UUID.test(id)) throw new Fail(400, 'bad_id');
-  const { data: profile, error } = await db.from('client_profiles').select('*').eq('id', id).maybeSingle();
-  if (error) throw error;
-  if (!profile) throw new Fail(404, 'not_found');
-  const { data: fileRows } = await db
-    .from('client_files')
-    .select('path,name,size,category,created_at')
-    .eq('profile_id', id)
-    .order('created_at');
-  const files = (fileRows ?? []) as { path: string; name: string; size: number; category: string; created_at: string }[];
-  const urls = files.length ? (await db.storage.from(BUCKET).createSignedUrls(files.map((f) => f.path), 3600)).data ?? [] : [];
+  if (!UUID.test(id)) {
+    await requireAdmin(req);
+    throw new Fail(400, 'bad_id');
+  }
+  const [, profileRes, filesRes] = await Promise.all([
+    requireAdmin(req),
+    db.from('client_profiles').select('*').eq('id', id).maybeSingle(),
+    db.from('client_files').select('*').eq('profile_id', id).order('created_at'),
+  ]);
+  if (profileRes.error) throw profileRes.error;
+  if (!profileRes.data) throw new Fail(404, 'not_found');
+  const files = ((filesRes.data ?? []) as { path: string; name: string; size: number; category: string; field?: string | null; created_at: string }[]).map(
+    ({ path, name, size, category, field, created_at }) => ({ path, name, size, category, field: field ?? null, created_at }),
+  );
+
+  // One link per file to open it, and for images a second, small one for the thumbnail, so the page does not
+  // download every full-size photo just to draw a 56 pixel square. If resizing is unavailable the page uses the
+  // full link instead.
+  const bucket = db.storage.from(BUCKET);
+  const [urls, thumbs] = await Promise.all([
+    files.length ? bucket.createSignedUrls(files.map((f) => f.path), 3600).then((r) => r.data ?? []) : Promise.resolve([]),
+    Promise.all(
+      files.map((f) =>
+        IMAGE.test(f.name)
+          ? bucket
+              .createSignedUrl(f.path, 3600, { transform: { width: 160, height: 160, resize: 'cover', quality: 70 } })
+              .then((r) => r.data?.signedUrl ?? null)
+              .catch(() => null)
+          : Promise.resolve(null),
+      ),
+    ),
+  ]);
   const byPath = new Map(urls.map((u: { path: string; signedUrl: string }) => [u.path, u.signedUrl]));
-  return json(req, 200, { profile, files: files.map((f) => ({ ...f, url: byPath.get(f.path) ?? null })) });
+  return json(req, 200, {
+    profile: profileRes.data,
+    files: files.map((f, i) => ({ ...f, url: byPath.get(f.path) ?? null, thumb: thumbs[i] })),
+  });
 }
 
 /* ------------------------------------------------------------------- handler */
@@ -371,8 +424,10 @@ Deno.serve(async (req) => {
     const ip = clientIp(req);
     const ipHash = await sha256(`asri-client-profile:${ip}`);
 
-    // Housekeeping: the rate-limit table only needs the last day.
-    db.from('client_profile_hits').delete().lt('at', new Date(Date.now() - 86_400_000).toISOString()).then(() => {});
+    if (body.action === 'upload-url' || body.action === 'submit') {
+      // Housekeeping: the rate-limit table only needs the last day. Not run for the admin page, which should stay quick.
+      db.from('client_profile_hits').delete().lt('at', new Date(Date.now() - 86_400_000).toISOString()).then(() => {});
+    }
 
     if (body.action === 'upload-url') return await uploadUrl(req, body, ipHash);
     if (body.action === 'submit') return await submit(req, body, ipHash, ip);

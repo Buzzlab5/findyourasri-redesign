@@ -336,7 +336,7 @@ export default function ClientProfileApp() {
         draftId,
         answers: out,
         followups: followUps(get, done.length),
-        files: done.map(({ path, name, category }) => ({ path, name, category })),
+        files: done.map(({ path, name, category, field }) => ({ path, name, category, field })),
         source: { page: window.location.pathname, ...readUtm() },
         website: honeypot.current?.value ?? '',
         turnstile: token,
